@@ -97,30 +97,40 @@
     <!-- ===================================================== Hero -->
     <section id="top" class="hero" data-spy="">
       <div class="container">
-        <p class="pill"><span class="pill__dot" aria-hidden="true"></span><span class="pill__long">Under review as a conference paper at ICLR 2027</span><span class="pill__short">Under review at ICLR 2027</span></p>
         <h1 class="hero__title"><span class="grad">ALoDLM</span>: Adaptively Looped Diffusion Language Models</h1>
-        <p class="hero__byline">Anonymous Authors</p>
-        <div class="hero__actions">
-          <button type="button" class="btn" aria-disabled="true" aria-label="Paper (coming soon)" data-tip="Coming soon">
-            <svg aria-hidden="true" focusable="false"><use href="#i-doc"/></svg>Paper<span class="btn__tag" aria-hidden="true">soon</span>
+        <div class="hero__authors">
+          <ul class="authors" aria-label="Authors">
+            <li>Liancheng Fang<sup aria-hidden="true">1,*</sup><span class="visually-hidden"> (University of Illinois; equal contribution)</span></li>
+            <li>Zhuowei Li<sup aria-hidden="true">2,*</sup><span class="visually-hidden"> (Amazon; equal contribution)</span></li>
+            <li>Youngeun Kim<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Tianchen Zhao<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Rajat Koner<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Jiaye Wu<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Linghan Xu<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Xuanbai Chen<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Xiang Xu<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Zheng Zhang<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Jakub Zablocki<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Nishant Sankaran<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+            <li>Yifan Xing<sup aria-hidden="true">2</sup><span class="visually-hidden"> (Amazon)</span></li>
+          </ul>
+          <p class="affils" aria-hidden="true"><span><sup>1</sup>University of Illinois</span><span><sup>2</sup>Amazon</span></p>
+          <p class="authors__note" aria-hidden="true">(<sup>*</sup>Equal contribution)</p>
+        </div>
+        <div class="hero__links">
+          <button type="button" class="hero-link" aria-disabled="true" aria-label="Paper (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-doc"/></svg>Paper<span class="hero-link__tag" aria-hidden="true">soon</span>
           </button>
-          <button type="button" class="btn" aria-disabled="true" aria-label="Code (coming soon)" data-tip="Coming soon">
-            <svg aria-hidden="true" focusable="false"><use href="#i-code"/></svg>Code<span class="btn__tag" aria-hidden="true">soon</span>
+          <button type="button" class="hero-link" aria-disabled="true" aria-label="Code (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-code"/></svg>Code<span class="hero-link__tag" aria-hidden="true">soon</span>
           </button>
-          <button type="button" class="btn" aria-disabled="true" aria-label="Models (coming soon)" data-tip="Coming soon">
-            <svg aria-hidden="true" focusable="false"><use href="#i-cube"/></svg>Models<span class="btn__tag" aria-hidden="true">soon</span>
+          <button type="button" class="hero-link" aria-disabled="true" aria-label="Models (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-cube"/></svg>Models<span class="hero-link__tag" aria-hidden="true">soon</span>
           </button>
-          <a class="btn btn--primary" href="#bibtex">
+          <a class="hero-link" href="#bibtex">
             <svg aria-hidden="true" focusable="false"><use href="#i-braces"/></svg>BibTeX
           </a>
         </div>
-        <p class="hero__tldr"><span class="tldr-label">TL;DR</span>ALoDLM replaces the uniform per-step computation of diffusion language models with token-adaptive latent recurrence: within each denoising step, confident tokens commit early as discrete context, while unresolved tokens keep refining their latent states through additional recurrent passes.</p>
-        <ul class="stats" aria-label="Headline results">
-          <li><a class="stat" href="#results"><span class="stat__value">80.3</span><span class="stat__label">average over 11 benchmarks, <span class="nowrap">ALoDLM-8B</span> <strong class="nowrap">(Qwen3-8B: 78.5)</strong></span></a></li>
-          <li><a class="stat" href="#results"><span class="stat__value">65.5</span><span class="stat__label">average over 11 benchmarks, <span class="nowrap">ALoDLM-1.7B</span> <strong class="nowrap">(Qwen3-1.7B: 63.8)</strong></span></a></li>
-          <li><a class="stat" href="#performance"><span class="stat__value">&asymp;2.7&times;</span><span class="stat__label">GSM8K throughput vs <span class="nowrap">vLLM-served</span> <span class="nowrap">Qwen3-8B</span>, at <strong>comparable or higher accuracy</strong></span></a></li>
-          <li><a class="stat" href="#results"><span class="stat__value">+5.2</span><span class="stat__label">average points over <span class="nowrap">WeDLM-8B</span>, <strong>ahead on 10 of 11</strong> benchmarks</span></a></li>
-        </ul>
       </div>
     </section>
 
@@ -514,7 +524,7 @@
       <div class="container">
         <div class="section__head">
           <h2 id="bibtex-title" data-anchor="bibtex">BibTeX</h2>
-          <p class="section__lead">Citation for the anonymous submission. It will be updated after the review period.</p>
+          <p class="section__lead">Citation for the paper, currently under review at ICLR 2027. It will be updated after the review period.</p>
         </div>
         <div class="code-card">
           <div class="code-card__bar">
@@ -525,9 +535,11 @@
               <span class="copy-btn__label">Copy</span>
             </button>
           </div>
-          <pre class="code-card__pre" tabindex="0" role="region" aria-label="BibTeX entry"><code id="bibtex-code">@inproceedings{anonymous2026alodlm,
+          <pre class="code-card__pre" tabindex="0" role="region" aria-label="BibTeX entry"><code id="bibtex-code">@inproceedings{fang2026alodlm,
   title     = {{ALoDLM}: Adaptively Looped Diffusion Language Models},
-  author    = {Anonymous},
+  author    = {Fang, Liancheng and Li, Zhuowei and Kim, Youngeun and Zhao, Tianchen and
+               Koner, Rajat and Wu, Jiaye and Xu, Linghan and Chen, Xuanbai and Xu, Xiang and
+               Zhang, Zheng and Zablocki, Jakub and Sankaran, Nishant and Xing, Yifan},
   booktitle = {Submitted to The Fifteenth International Conference on Learning Representations},
   year      = {2026},
   note      = {Under review}
@@ -551,7 +563,7 @@
           <path d="M23.1 6.6 17 9.9 18.3 2.1z" fill="url(#g-brand-foot)" stroke="url(#g-brand-foot)" stroke-width="1.2" stroke-linejoin="round"/>
           <rect x="12.6" y="12.6" width="6.8" height="6.8" rx="1.8" fill="url(#g-brand-foot)"/>
         </svg>
-        <span>Anonymous project page for a paper under double-blind review.</span>
+        <span>ALoDLM: Adaptively Looped Diffusion Language Models &middot; under review at ICLR 2027</span>
       </p>
       <a class="to-top" href="#top">Back to top <svg aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></a>
     </div>

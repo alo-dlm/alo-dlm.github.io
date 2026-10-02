@@ -1,12 +1,15 @@
 # ALoDLM project page
 
-Private, anonymous project page for **ALoDLM: Adaptively Looped Diffusion Language Models**
-(under double-blind review as a conference paper at ICLR 2027).
+Private project page for **ALoDLM: Adaptively Looped Diffusion Language Models**
+(under review as a conference paper at ICLR 2027).
 Plain HTML, CSS and JavaScript: no framework, no build step, no package manager.
+
+The page now shows the author list (header and BibTeX), so it must stay private while the paper is
+under double-blind review.
 
 ## While under review
 
-Keep the repository anonymous until the paper is de-anonymized:
+Keep the repository private, and its metadata anonymous, until the paper is de-anonymized:
 
 - In every clone, set an anonymous identity before committing (local git config is not pushed, so a
   fresh clone would otherwise commit under your own name and email):
@@ -76,12 +79,12 @@ Everything else (tables, figures, numbers) is reported as in the paper.
 
 ## Before going public
 
-- [ ] Replace "Anonymous Authors" with the author list (and affiliations, if wanted).
+- [x] Author list, affiliations and equal-contribution note in the header; authors in the BibTeX entry.
 - [ ] Turn the Paper / Code / Models placeholders into real links. They are `aria-disabled` buttons
-      with a "soon" tag now; make them `<a class="btn" href="...">` and drop the tag.
-- [ ] Update the BibTeX entry (authors, key, venue, year, URL) and the sentence above it.
+      with a "soon" tag now; make them `<a class="hero-link" href="...">` and drop the tag.
+- [ ] Update the BibTeX venue, year and URL (and the sentence above it) once the decision is out.
 - [ ] Remove `<meta name="robots" content="noindex, nofollow">` from `index.html`.
-- [ ] Revisit the footer line ("Anonymous project page for a paper under double-blind review.").
+- [x] Footer line no longer says the page is anonymous.
 - [ ] Optionally add Open Graph / Twitter meta tags (e.g. `static/images/teaser_throughput.png`).
 - [ ] Re-check figures and data for anything that should stay private.
 - [ ] Figure 1 (right) prints an inference-engine label under ALoDLM-8B, copied from the paper's figure,
