@@ -1012,3 +1012,13 @@
   if (doc.readyState === 'complete') { afterWidgets(); }
   else { doc.addEventListener('DOMContentLoaded', afterWidgets, { once: true }); }
 })();
+
+/* Mobius "oo" in the hero title: enable the ribbon only once Google Sans 700 is
+   available (it is fitted to that face); otherwise the real letters stay visible. */
+(function () {
+  var h1 = document.querySelector('.hero__title');
+  if (!h1 || !h1.querySelector('.mobius') || !document.fonts || !document.fonts.load) { return; }
+  document.fonts.load('700 1em "Google Sans"').then(function (faces) {
+    if (faces && faces.length) { h1.classList.add('mobius-on'); }
+  }, function () {});
+})();

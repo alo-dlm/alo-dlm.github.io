@@ -638,6 +638,64 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; line
     -webkit-text-fill-color: transparent;
   }
 }
+/* Mobius "oo" in "Looped": the two o's drawn as one infinity ribbon.
+   The real letters stay in the DOM (accessible name, copy, find-in-page); the
+   ribbon only replaces them visually once Google Sans 700 has loaded
+   (site.js adds .mobius-on), so a fallback font never gets a misfitted loop. */
+.loopword { display: inline-block; }            /* atomic word, same wrapping as plain text */
+.loopword__l { color: var(--brand); }
+.loopword__oo { color: color-mix(in oklab, var(--brand) 62%, var(--accent)); }
+.loopword__ped { color: var(--accent); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .loopword__ped {
+    background: linear-gradient(90deg, color-mix(in oklab, var(--brand) 38%, var(--accent)) 0%, var(--accent) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+.mobius {
+  display: none;
+  width: 1.182em;          /* advance of "oo" at the hero's -.022em tracking */
+  height: .6em;
+  margin-left: -1.182em;   /* zero net advance: drawn back over the two o's */
+  vertical-align: -.04em;
+  overflow: visible;
+  pointer-events: none;
+}
+.hero__title.mobius-on .mobius { display: inline-block; }
+.hero__title.mobius-on .loopword__oo { color: transparent; -webkit-text-fill-color: transparent; }
+.mobius .s-a   { stop-color: var(--brand); }
+.mobius .s-b   { stop-color: var(--accent); }
+.mobius .s-bg0 { stop-color: var(--bg); stop-opacity: 0; }
+.mobius .s-bg1 { stop-color: var(--bg); stop-opacity: var(--mobius-depth, .5); }
+.mobius .s-hi0 { stop-color: #fff; stop-opacity: 0; }
+.mobius .s-hi1 { stop-color: #fff; stop-opacity: var(--mobius-sheen, .2); }
+:root[data-theme="dark"] .mobius { --mobius-depth: .55; --mobius-sheen: .14; --mobius-glint: .1; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mobius { --mobius-depth: .55; --mobius-sheen: .14; --mobius-glint: .1; }
+}
+/* One faint pass of light around the loop after load (one recurrent pass), then rest. */
+.mobius__glint { stroke: #fff; stroke-linecap: round; stroke-dasharray: 16 84; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero__title.mobius-on .mobius__glint {
+    stroke-opacity: var(--mobius-glint, .14);
+    animation: mobius-glint 3.4s cubic-bezier(.45, .05, .35, 1) 1.2s 1 both;
+  }
+}
+@keyframes mobius-glint {
+  0%   { stroke-dashoffset: 0;    opacity: 0; }
+  12%  { opacity: 1; }
+  82%  { opacity: 1; }
+  100% { stroke-dashoffset: -100; opacity: 0; }
+}
+@media print { .mobius__glint { display: none; } }
+@media (forced-colors: active) {
+  .loopword__l, .loopword__oo, .loopword__ped { color: CanvasText; -webkit-text-fill-color: CanvasText; background: none; }
+  .hero__title.mobius-on .loopword__oo { color: CanvasText; -webkit-text-fill-color: CanvasText; }
+  .mobius, .hero__title.mobius-on .mobius { display: none; }
+}
 /* Header in the WeDLM layout: authors (brand colour), affiliations, note, link row */
 .hero__authors { max-width: 70rem; margin: clamp(18px, 2.4vw, 30px) auto 0; }
 /* Inline names so text-wrap: balance can even out the lines (no lone last name) */
