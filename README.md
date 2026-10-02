@@ -22,7 +22,6 @@ static/css/style.css          design system: tokens (light/dark), layout, compon
 static/css/demo-replay.css    hero decoding replay        (#demo)
 static/css/loop-stepper.css   method step-through         (#loop-stepper)
 static/css/results.css        Table 1 + analysis charts   (#results-table, #analysis-charts)
-static/css/depth-explorer.css case-study explorer         (#depth-explorer)
 static/js/site.js             theme toggle, nav scroll-spy, figure lightbox, BibTeX copy,
                               KaTeX rendering, shared helpers (window.ALODLM)
 static/js/<widget>.js         one script per widget (same names as the CSS files)
@@ -42,9 +41,10 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
   table (values, bold/underline marks and the caption).
 - Figures were converted from the paper's figure PDFs. They stay on white "paper" cards in dark mode
   and are never inverted.
-- Traces: per-token commitment passes recorded while an ALoDLM-8B checkpoint decoded GSM8K test
-  questions (K = 4, τ = 0.4, 16-token window; exit threshold q ∈ {0.1, 0.2, 0.3, 0.5}). This
-  checkpoint is not the one used for the throughput measurements.
+- Traces (used by the decoding replay and the method step-through): per-token commitment passes
+  recorded while an ALoDLM-8B checkpoint decoded GSM8K test questions (K = 4, q = 0.5, τ = 0.4,
+  16-token window), the same traces as the paper's case-study figure. This checkpoint is not the one
+  used for the throughput measurements.
 
 ## What is illustrative
 
@@ -54,7 +54,6 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
   steps is illustrative.
 - **Method step-through:** a real span with its recorded commitment passes; placing these tokens in a
   single denoising step is illustrative.
-- **Depth explorer:** recorded traces, descriptive only.
 
 Everything else (tables, figures, numbers) is reported as in the paper.
 

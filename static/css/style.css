@@ -1482,7 +1482,6 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 #loop-stepper { --mount-min-h: 440px; }
 #results-table { --mount-min-h: 480px; }
 #analysis-charts { --mount-min-h: 300px; }
-#depth-explorer { --mount-min-h: 520px; }
 /* While the deferred scripts are still loading (html.js until the head script adds .is-ready
    on DOMContentLoaded), reserve about the mounted height so the page does not jump when the
    widgets mount. A fallback still showing after that (a widget failed) keeps the compact size. */
@@ -1491,31 +1490,26 @@ html.js:not(.is-ready) #demo { --mount-min-h: 1000px; }
 html.js:not(.is-ready) #loop-stepper { --mount-min-h: 985px; }
 html.js:not(.is-ready) #results-table { --mount-min-h: 1180px; }
 html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1230px; }
-html.js:not(.is-ready) #depth-explorer { --mount-min-h: 2560px; }
 @media (min-width: 560px) {
   html.js:not(.is-ready) #demo { --mount-min-h: 900px; }
   html.js:not(.is-ready) #loop-stepper { --mount-min-h: 860px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 1060px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1040px; }
-  html.js:not(.is-ready) #depth-explorer { --mount-min-h: 2300px; }
 }
 @media (min-width: 768px) {
   html.js:not(.is-ready) #demo { --mount-min-h: 800px; }
   html.js:not(.is-ready) #loop-stepper { --mount-min-h: 670px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 960px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 580px; }
-  html.js:not(.is-ready) #depth-explorer { --mount-min-h: 1700px; }
 }
 @media (min-width: 1024px) {
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 530px; }
-  html.js:not(.is-ready) #depth-explorer { --mount-min-h: 1300px; }
 }
 @media (min-width: 1200px) {
   html.js:not(.is-ready) #demo { --mount-min-h: 766px; }
   html.js:not(.is-ready) #loop-stepper { --mount-min-h: 693px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 948px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 500px; }
-  html.js:not(.is-ready) #depth-explorer { --mount-min-h: 1090px; }
 }
 
 /* --------------------------------------------------------------------------
