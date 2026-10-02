@@ -37,7 +37,7 @@ index.html                    the page: all static content + widget mount points
 static/css/style.css          design system: tokens (light/dark), layout, components
 static/css/demo-replay.css    hero decoding replay        (#demo)
 static/css/loop-stepper.css   method step-through         (#loop-stepper)
-static/css/results.css        Table 1 + analysis charts   (#results-table, #analysis-charts)
+static/css/results.css        Table 1                     (#results-table)
 static/js/site.js             theme toggle, nav scroll-spy, figure lightbox, BibTeX copy,
                               KaTeX rendering, shared helpers (window.ALODLM)
 static/js/<widget>.js         one script per widget (same names as the CSS files)

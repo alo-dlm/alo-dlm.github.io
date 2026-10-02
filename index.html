@@ -85,7 +85,6 @@
         <li><a href="#abstract">Abstract</a></li>
         <li><a href="#method">Method</a></li>
         <li><a href="#results">Results</a></li>
-        <li><a href="#analysis">Analysis</a></li>
         <li><a href="#bibtex">BibTeX</a></li>
       </ul>
       <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark theme" data-tip="Switch to dark theme" data-tip-pos="bottom-end">
@@ -470,60 +469,8 @@
       </div>
     </section>
 
-    <!-- ===================================================== Analysis -->
-    <section id="analysis" class="section section--tint" data-spy="analysis" aria-labelledby="analysis-title">
-      <div class="container container--full">
-        <div class="section__head">
-          <h2 id="analysis-title" data-anchor="analysis">Analysis</h2>
-          <p class="section__lead is-long">What the recurrent depth learns, and how it can be used at test time. After the initial training phase, deeper recurrent readouts reach lower training loss on their active tokens, the exit threshold <var>q</var> acts as a test-time scaling knob, and the model learns to prefer more refinement for number tokens without any difficulty labels.</p>
-        </div>
-
-        <figure class="fig fig--wide" id="fig-4">
-          <div class="fig__head">
-            <span class="fig__label"><b>Figure 4</b> &middot; Learning dynamics and allocation</span>
-            <button type="button" class="fig__zoom" aria-label="Enlarge Figure 4: learning dynamics, test-time scaling and token-adaptive recurrence"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
-          </div>
-          <div class="fig__media">
-            <img src="static/images/training_allocation.svg" width="685" height="160" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
-                 alt="Training loss by recurrence depth (deeper is lower); accuracy and loops-per-token increase with exit threshold q; numeric tokens have the lowest mean halting probability (0.369, −11.5% vs mean).">
-          </div>
-          <figcaption class="fig__caption"><strong>Left: Learning dynamics.</strong> After the initial training phase, deeper recurrent readouts exhibit lower training loss on their active tokens. <strong>Middle: Test-time scaling with <em>q</em>.</strong> Increasing <em>q</em> raises loops-per-token and the average score across eleven benchmarks. <strong>Right: Token-adaptive recurrence.</strong> Mean first-pass halting probabilities differ across token categories, with numerical tokens showing the lowest mean. These preferences are learned without explicit token-difficulty labels or predefined halting targets.</figcaption>
-        </figure>
-
-        <div id="analysis-charts" class="widget-mount block-gap" data-widget="analysis-charts">
-          <div class="widget-fallback">
-            <strong>Interactive charts</strong>
-            Raising the exit threshold <var>q</var> from 0.1 to 0.4 increases loops per token from 1.60 to 2.34 and the eleven-benchmark average from 77.9 to 79.1. Number tokens have the lowest mean first-pass halting probability (0.369, about 11.5% below the mean of 0.417). The interactive charts need JavaScript.
-          </div>
-        </div>
-
-        <div class="subsection" id="ablations">
-          <div class="subsection__head">
-            <span class="eyebrow">Ablations</span>
-            <h3 data-anchor="ablations">Depth, placement and supervision</h3>
-          </div>
-          <figure class="fig fig--wide" id="fig-5">
-            <div class="fig__head">
-              <span class="fig__label"><b>Figure 5</b> &middot; Ablations</span>
-              <button type="button" class="fig__zoom" aria-label="Enlarge Figure 5: ablations"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
-            </div>
-            <div class="fig__media">
-              <img src="static/images/ablations.svg" width="699" height="156" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
-                   alt="Ablations: maximum recurrent depth K = 4 matches or beats K = 8 and beats K = 2; middle-layer recurrence beats last-layer recurrence; removing intermediate supervision raises conditional gradient variance 1.42–1.76× (measured parameter subset).">
-            </div>
-            <figcaption class="fig__caption"><strong>Left:</strong> At 8B, <em>K</em> = 4 outperforms <em>K</em> = 8 early in training and achieves comparable performance later, while <em>K</em> = 2 plateaus at a lower score. The inset enlarges steps 10,000&ndash;17,000. <strong>Middle:</strong> Middle-layer recurrence outperforms last-layer recurrence later in training. The full-stack curve is a historical reference evaluated on a different benchmark subset. <strong>Right:</strong> Intermediate supervision reduces conditional gradient variance in ALoDLM-8B. Variance across sampled exit trajectories is normalized to the value with intermediate supervision at each checkpoint. Error bars show paired 95% bootstrap confidence intervals across eight fixed input packs.</figcaption>
-          </figure>
-          <ul class="takeaways">
-            <li class="takeaway"><strong>Maximum recurrent depth <var>K</var>.</strong> <var>K</var>&nbsp;=&nbsp;4 learns faster than <var>K</var>&nbsp;=&nbsp;8 early on and matches it later with half the maximum recurrent depth; <var>K</var>&nbsp;=&nbsp;2 plateaus lower.</li>
-            <li class="takeaway"><strong>Loop placement.</strong> Looping the middle layers [10, 26) beats looping the last layers [20, 36) later in training, although both cores have 16 layers. The full-stack curve was evaluated on a different benchmark subset.</li>
-            <li class="takeaway"><strong>Intermediate supervision.</strong> On a measured subset of 4,096 denoiser normalization parameters, removing it raises conditional gradient variance to 1.76&times;, 1.49&times; and 1.42&times; the full-method value at steps 1k, 6.5k and 17k. The supervision itself needs no extra recurrent passes.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
     <!-- ===================================================== BibTeX -->
-    <section id="bibtex" class="section" data-spy="bibtex" aria-labelledby="bibtex-title">
+    <section id="bibtex" class="section section--tint" data-spy="bibtex" aria-labelledby="bibtex-title">
       <div class="container">
         <div class="section__head">
           <h2 id="bibtex-title" data-anchor="bibtex">BibTeX</h2>
