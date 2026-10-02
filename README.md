@@ -74,6 +74,9 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
 - **Method step-through:** a real span with its recorded commitment passes; placing these tokens in a
   single denoising step is illustrative. The traces record only commitment passes, so the halting
   meter is schematic (labelled on the page).
+- **Motivation schematic (`#fig-mismatch`):** a site-made HTML/CSS diagram with a site-written caption,
+  not a paper figure. Its sentence condenses a GSM8K reference answer; per-position difficulty, bar
+  heights and pass counts are illustrative, not measured (labelled on the page).
 
 Everything else (tables, figures, numbers) is reported as in the paper.
 

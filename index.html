@@ -234,10 +234,86 @@
         </div>
 
         <div class="motivation">
-          <span class="eyebrow">Motivation</span>
-          <h3>The computation&ndash;difficulty mismatch</h3>
-          <p>Within a single denoising step, masked positions can differ greatly in how hard they are to predict, because of intrinsic uncertainty, multi-hop reasoning, or dependence on other tokens that are still unresolved. Yet a standard DLM applies the same fixed-depth denoiser to every masked position, wasting computation on easy predictions and starving hard ones.</p>
-          <p>Confidence-based decoding helps only partly: it defers low-confidence predictions to later denoising steps, but a deferred token still gets the same fixed compute, and its latent computation is thrown away and recomputed from its mask embedding at the next step.</p>
+          <div class="motivation__text">
+            <span class="eyebrow">Motivation</span>
+            <h3>The computation&ndash;difficulty mismatch</h3>
+            <p>Within a single denoising step, masked positions can differ greatly in how hard they are to predict, because of intrinsic uncertainty, multi-hop reasoning, or dependence on other tokens that are still unresolved. Yet a standard DLM applies the same fixed-depth denoiser to every masked position, wasting computation on easy predictions and starving hard ones.</p>
+            <p>Confidence-based decoding helps only partly: it defers low-confidence predictions to later denoising steps, but a deferred token still gets the same fixed compute, and its latent computation is thrown away and recomputed from its mask embedding at the next step.</p>
+          </div>
+
+          <!-- Schematic (HTML/CSS; styles: style.css 5g-ii). Heights and pass counts are illustrative. -->
+          <figure class="fig mm-fig" id="fig-mismatch">
+            <div class="fig__head">
+              <span class="fig__label"><b>Schematic</b> &middot; Compute vs. difficulty</span>
+            </div>
+            <div class="mm-body">
+              <div class="mm-ctx">
+                <p class="mm-ctx__lead">Masked positions in one denoising step</p>
+                <p class="mm-ctx__line" aria-hidden="true">She <span class="mm-chip">sells</span> 16&nbsp;&minus;&nbsp;3&nbsp;&minus;&nbsp;4&nbsp;= <span class="mm-m"><span class="mm-chip">9</span><small>multi-hop</small></span> <span class="mm-chip">eggs</span> a&nbsp;day, <span class="mm-chip">so</span> she <span class="mm-m"><span class="mm-chip">makes</span><small>ambiguous</small></span> <span class="nowrap"><span class="mm-chip">$</span><span class="mm-m"><span class="mm-chip">18</span><small>needs 9</small></span>.</span></p>
+                <p class="visually-hidden">Example answer: She sells 16 &minus; 3 &minus; 4 = 9 eggs a day, so she makes $18. Masked in this step: sells, 9, eggs, so, makes, $ and 18. 9 needs multi-hop arithmetic; makes is ambiguous, since several words fit; 18 needs 9, which is still masked. The other positions are easy.</p>
+              </div>
+
+              <div class="mm-panels">
+                <div class="mm-panel mm-panel--dlm" role="group" aria-labelledby="mm-a-title">
+                  <p class="mm-panel__title" id="mm-a-title"><span class="mm-panel__tag" aria-hidden="true">a</span>Standard DLM: one fixed depth</p>
+                  <p class="mm-panel__sub"><strong>Mismatch:</strong> easy positions get more than they need, hard ones less.</p>
+                  <div class="mm-plot mm-plot--fixed" role="img" aria-label="Panel a: compute per masked position under a fixed depth" aria-describedby="mm-a-desc">
+                    <span class="mm-ylab">compute per position &rarr;</span>
+                    <div class="mm-cols">
+                    <div class="mm-col" style="--need:.20"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-waste"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span><span class="mm-linelab">fixed depth</span></div><span class="mm-chip">sells</span></div>
+                    <div class="mm-col" style="--need:.72"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-short"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span><span class="mm-tag mm-tag--short">starved</span></div><span class="mm-chip">9</span></div>
+                    <div class="mm-col" style="--need:.16"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-waste"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span></div><span class="mm-chip">eggs</span></div>
+                    <div class="mm-col" style="--need:.13"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-waste"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span><span class="mm-tag mm-tag--waste">wasted</span></div><span class="mm-chip">so</span></div>
+                    <div class="mm-col" style="--need:.47"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-short"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span></div><span class="mm-chip">makes</span></div>
+                    <div class="mm-col" style="--need:.18"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-waste"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span></div><span class="mm-chip">$</span></div>
+                    <div class="mm-col" style="--need:.93"><div class="mm-track"><span class="mm-g mm-bar"></span><span class="mm-g mm-short"></span><span class="mm-g mm-need"></span><span class="mm-fixed"></span><span class="mm-tag mm-tag--short">starved</span></div><span class="mm-chip">18</span></div>
+                    </div>
+                  </div>
+                  <p id="mm-a-desc" class="visually-hidden">Illustrative bar chart. Every masked position gets the same fixed depth. sells, eggs, so and $ need less than that, so part of their depth is wasted. makes needs a little more, 9 clearly more and 18 the most, so they are starved. Under confidence-based decoding, 9 and 18 are deferred: their latent work from this step is discarded, and at the next step each restarts from the mask embedding with the same fixed depth.</p>
+                  <div class="mm-defer">
+                    <p class="mm-defer__title">Confidence-based decoding defers <code>9</code> and <code>18</code></p>
+                    <div class="mm-defer__grid" role="img" aria-label="In this denoising step, the fixed depth falls short for 9 and 18, so both are deferred and their latent work is discarded. At the next step, each restarts from the mask embedding with the same fixed depth.">
+                      <span class="mm-defer__h"></span><span class="mm-defer__h">this step</span><span class="mm-defer__h"></span><span class="mm-defer__h">next step</span>
+                      <span class="mm-chip">9</span><span class="mm-step"><span class="mm-step__l">this step</span><span class="mm-mini" style="--need:.72"><span class="mm-mini__bar"></span><span class="mm-mini__short"></span><span class="mm-mini__need"></span></span></span><span class="mm-swap"><span class="mm-x"><svg aria-hidden="true" focusable="false"><use href="#i-close"/></svg></span><span class="mm-arrow">&rarr;</span><span class="mm-mask">[M]</span></span><span class="mm-step"><span class="mm-step__l">next step</span><span class="mm-mini" style="--need:.72"><span class="mm-mini__bar"></span><span class="mm-mini__short"></span><span class="mm-mini__need"></span></span></span>
+                      <span class="mm-chip">18</span><span class="mm-step"><span class="mm-step__l">this step</span><span class="mm-mini" style="--need:.93"><span class="mm-mini__bar"></span><span class="mm-mini__short"></span><span class="mm-mini__need"></span></span></span><span class="mm-swap"><span class="mm-x"><svg aria-hidden="true" focusable="false"><use href="#i-close"/></svg></span><span class="mm-arrow">&rarr;</span><span class="mm-mask">[M]</span></span><span class="mm-step"><span class="mm-step__l">next step</span><span class="mm-mini" style="--need:.93"><span class="mm-mini__bar"></span><span class="mm-mini__short"></span><span class="mm-mini__need"></span></span></span>
+                    </div>
+                    <p class="mm-defer__note"><strong>Helps only partly:</strong> a later step may add context (<code>18</code> needs <code>9</code>), but the latent work is discarded <span class="mm-x"><svg aria-hidden="true" focusable="false"><use href="#i-close"/></svg></span> and the position restarts from its mask embedding <span class="mm-mask">[M]</span> with the same fixed depth.</p>
+                  </div>
+                </div>
+
+                <div class="mm-panel mm-panel--ours" role="group" aria-labelledby="mm-b-title">
+                  <p class="mm-panel__title" id="mm-b-title"><span class="mm-panel__tag" aria-hidden="true">b</span>ALoDLM: passes follow difficulty</p>
+                  <p class="mm-panel__sub"><strong>Matched:</strong> a position keeps refining until it commits, for at most <var>K</var>&nbsp;=&nbsp;4 recurrent passes.</p>
+                  <div class="mm-plot mm-plot--passes" role="img" aria-label="Panel b: recurrent passes per masked position in ALoDLM" aria-describedby="mm-b-desc">
+                    <span class="mm-ylab">recurrent passes &rarr;</span>
+                    <div class="mm-cols">
+                    <div class="mm-col" style="--need:.20;--n:1"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span><span class="mm-caplab">maximum recurrent depth <var>K</var>&nbsp;=&nbsp;4</span></div><span class="mm-chip">sells</span></div>
+                    <div class="mm-col" style="--need:.72;--n:3"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-seg" data-pass="2" style="--i:2">2</span><span class="mm-g mm-seg" data-pass="3" style="--i:3">3</span><span class="mm-rail"></span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">9</span></div>
+                    <div class="mm-col" style="--need:.16;--n:1"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">eggs</span></div>
+                    <div class="mm-col" style="--need:.13;--n:1"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">so</span></div>
+                    <div class="mm-col" style="--need:.47;--n:2"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-seg" data-pass="2" style="--i:2">2</span><span class="mm-rail"></span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">makes</span></div>
+                    <div class="mm-col" style="--need:.18;--n:1"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">$</span></div>
+                    <div class="mm-col" style="--need:.93;--n:4"><div class="mm-track"><span class="mm-g mm-seg" data-pass="1" style="--i:1">1</span><span class="mm-g mm-seg" data-pass="2" style="--i:2">2</span><span class="mm-g mm-seg" data-pass="3" style="--i:3">3</span><span class="mm-g mm-seg" data-pass="4" style="--i:4">4</span><span class="mm-rail"></span><span class="mm-g mm-need"></span><span class="mm-commit"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span><span class="mm-cap"></span></div><span class="mm-chip">18</span></div>
+                    </div>
+                  </div>
+                  <p id="mm-b-desc" class="visually-hidden">Illustrative stacked bars on a separate scale of recurrent passes, with the same difficulty outlines. sells, eggs, so and $ commit after pass 1; makes after pass 2; 9 after pass 3; and 18 after pass 4, the maximum recurrent depth K = 4, once 9 has become context. Positions that need several passes keep their latent state from one pass to the next; a position still unresolved when the loop stops would stay masked for a later step.</p>
+                  <p class="mm-panel__note">Easy positions commit after pass&nbsp;1 and become discrete context. <code>9</code> and <code>18</code> keep refining their latent states; <code>18</code> commits once <code>9</code> is context. A position still unresolved when the loop stops stays masked for a later step.</p>
+                </div>
+
+                <div class="legend mm-legend" aria-hidden="true">
+                  <span class="legend__item"><span class="mm-sw mm-sw--need"></span>compute a position needs</span>
+                  <span class="legend__item"><span class="mm-sw mm-sw--waste"></span>wasted</span>
+                  <span class="legend__item"><span class="mm-sw mm-sw--short"></span>starved</span>
+                  <span class="legend__item"><span class="mm-sw mm-sw--pass"><span data-pass="1">1</span><span data-pass="2">2</span><span data-pass="3">3</span><span data-pass="4">4</span></span><span>recurrent pass <var>s</var></span></span>
+                  <span class="legend__item"><span class="mm-sw mm-sw--rail"></span>latent state kept</span>
+                  <span class="legend__item"><span class="mm-commit mm-commit--key"><svg aria-hidden="true" focusable="false"><use href="#i-check"/></svg></span>commit</span>
+                </div>
+              </div>
+            </div>
+
+            <figcaption class="fig__caption"><strong>The computation&ndash;difficulty mismatch (schematic).</strong> A condensed GSM8K answer (Janet&rsquo;s ducks); difficulty, heights and pass counts are illustrative, not measured, while Part&nbsp;01 replays recorded passes. Each panel has its own scale: it shows how computation is allocated across positions, not its absolute cost.</figcaption>
+          </figure>
+
           <p class="principle"><strong>Principle.</strong> A DLM should maintain and refine persistent latent states for challenging tokens within each denoising step, so that computation scales with prediction difficulty.</p>
         </div>
 

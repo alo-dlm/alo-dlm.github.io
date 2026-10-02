@@ -10,7 +10,7 @@
      4. Layout primitives
      5. Components: skip link, nav, buttons, hero, stat tiles, sections,
         cards, contributions, figure cards, method parts, checklist,
-        architecture, details/summary, algorithm, equations, KPIs,
+        architecture, motivation figure (mm-), details/summary, algorithm, equations, KPIs,
         takeaways, code card, chips, segmented control, tabs, tooltip,
         select/range, legend + commitment-pass ramp, terminal scope,
         widget mounts, lightbox, footer
@@ -861,7 +861,8 @@ a.pub-btn:hover { background: var(--pub-bg-hover); color: var(--pub-ink); box-sh
 /* --------------------------------------------------------------------------
    5g. Method: motivation, parts, checklist, architecture, divider
    -------------------------------------------------------------------------- */
-.motivation { max-width: var(--w-text); margin: 0 auto clamp(2.5rem, 5vw, 3.5rem); }
+.motivation { max-width: 64rem; margin: 0 auto clamp(2.5rem, 5vw, 3.5rem); }
+.motivation__text, .motivation > .principle { max-width: var(--w-text); margin-inline: auto; }
 .motivation h3 { margin: .5rem 0 1rem; }
 .principle {
   margin: 1.25rem 0 0;
@@ -968,6 +969,373 @@ a.pub-btn:hover { background: var(--pub-bg-hover); color: var(--pub-ink); box-sh
 .arch__loop { display: inline-block; width: 14px; height: 14px; margin-left: 2px; vertical-align: -2px; }
 .arch__note { color: var(--text-3); font-size: var(--fs-sm); line-height: 1.55; }
 .arch__heads { display: grid; gap: 6px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* --------------------------------------------------------------------------
+   5g-ii. Motivation figure: the computation-difficulty mismatch (mm-)
+   A schematic drawn in HTML/CSS (no SVG text that shrinks with a viewBox),
+   themed only through the tokens above. Each masked position is one .mm-col
+   with --need (illustrative difficulty, as a fraction of its panel's value
+   axis); panel (b) columns add --n (recurrent passes until commit). Bars
+   share one geometry: every .mm-g sets --s (start) and --z (size) along the
+   value axis, and the layout maps that axis to x (rows) or y (columns).
+   Layout follows the figure's own width, mobile first:
+     < 560px   panels stacked, bars run horizontally (one row per position)
+     >= 560px  bars stand vertically (one column per position)
+     >= 900px  panels (a) and (b) side by side
+   Browsers without container queries keep the row layout at every width.
+   -------------------------------------------------------------------------- */
+.mm-fig {
+  container: mmfig / inline-size;
+  margin: clamp(1.75rem, 3.5vw, 2.5rem) 0;
+  --fixed: .4;                        /* panel (a): the fixed depth */
+  --mm-spent: var(--dlm-bg);          /* fallbacks; refined below with color-mix() */
+  --mm-hatch: var(--dlm);
+  --mm-starve-bg: var(--surface);
+  --mm-seg-edge: var(--border-strong);
+  --mm-tokw: 56px;                    /* token column in the row layout */
+}
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  .mm-fig {
+    --mm-spent: color-mix(in srgb, var(--dlm) 22%, var(--surface));
+    --mm-hatch: color-mix(in srgb, var(--dlm) 62%, transparent);
+    --mm-starve-bg: color-mix(in srgb, var(--neg) 9%, var(--surface));
+    --mm-seg-edge: color-mix(in srgb, var(--d4) 45%, transparent);
+  }
+  /* Dark: the bright amber mixed into navy turns olive, so mix the deeper amber instead */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .mm-fig {
+      --mm-spent: color-mix(in srgb, var(--latent-edge) 44%, var(--surface));
+      --mm-hatch: color-mix(in srgb, var(--dlm) 55%, transparent);
+    }
+  }
+  :root[data-theme="dark"] .mm-fig {
+    --mm-spent: color-mix(in srgb, var(--latent-edge) 44%, var(--surface));
+    --mm-hatch: color-mix(in srgb, var(--dlm) 55%, transparent);
+  }
+}
+.mm-fig:hover { box-shadow: var(--sh-md); }   /* not zoomable: no hover lift */
+.mm-body { padding: 14px 12px 12px; }
+
+/* Sentence with the masked positions */
+.mm-ctx { padding: 0 4px 12px; }
+.mm-ctx__lead {
+  color: var(--text-3);
+  font: 600 var(--fs-micro)/1.4 var(--font-body);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.mm-ctx__line { margin-top: 4px; color: var(--text-2); font: 400 .875rem/2.15 var(--font-mono); }
+.mm-m { display: inline-flex; flex-direction: column; align-items: center; }
+.mm-m small {
+  margin: 1px -3em 2px;          /* wider than the chip without widening its slot */
+  color: var(--text);
+  font: 600 var(--fs-micro)/1.2 var(--font-body);
+  white-space: nowrap;
+}
+.mm-chip {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 5px;
+  border: 1px dashed var(--mask-edge);
+  border-radius: var(--r-chip);
+  background: var(--mask-bg);
+  color: var(--text);
+  font: 600 .8125rem/1 var(--font-mono);
+  white-space: nowrap;
+}
+.mm-ctx__line .mm-chip + .mm-m, .mm-ctx__line .mm-chip + .mm-chip { margin-left: 2px; }
+
+/* Panels */
+.mm-panels { display: grid; gap: 12px; }
+.mm-panel {
+  min-width: 0;
+  padding: 14px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-btn);
+}
+.mm-panel--dlm { background: var(--dlm-bg); }
+.mm-panel--ours { background: var(--ours-bg); }
+.mm-panel__title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text);
+  font: 600 var(--fs-sm)/1.35 var(--font-display);
+}
+.mm-panel__tag {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid currentColor;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--dlm);
+  font: 700 var(--fs-micro)/1 var(--font-body);
+  transform: translateY(-1px);
+}
+.mm-panel--ours .mm-panel__tag { color: var(--brand); }
+.mm-panel__sub { margin: 3px 0 0 28px; color: var(--text-2); font-size: .8125rem; line-height: 1.45; }
+.mm-panel__sub strong { color: var(--text); }
+.mm-panel__note, .mm-defer__note { color: var(--text-2); font-size: .8125rem; line-height: 1.5; }
+.mm-panel__note { margin-top: 12px; }
+.mm-panel__note code, .mm-defer__note code { color: var(--text); font-size: .8125rem; font-weight: 600; }
+
+/* Plot: rows by default */
+.mm-plot { display: flex; flex-direction: column; margin-top: 10px; padding-top: 20px; }
+.mm-cols { display: grid; grid-auto-rows: 28px; }
+.mm-col {
+  display: grid;
+  grid-template-columns: var(--mm-tokw) minmax(0, 1fr);
+  grid-template-areas: "tok track";
+  min-width: 0;
+}
+.mm-col > .mm-chip { grid-area: tok; justify-self: start; align-self: center; height: 22px; }
+.mm-track { grid-area: track; position: relative; border-left: 1.5px solid var(--border-strong); }
+.mm-plot--passes .mm-track {
+  background:
+    linear-gradient(var(--border), var(--border)) 25% 0 / 1px 100% no-repeat,
+    linear-gradient(var(--border), var(--border)) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(var(--border), var(--border)) 75% 0 / 1px 100% no-repeat;
+}
+.mm-g {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: calc(var(--s) * 100%);
+  width: calc(var(--z) * 100%);
+}
+.mm-bar { --s: 0; --z: var(--fixed); background: var(--mm-spent); }
+.mm-waste {
+  --s: var(--need);
+  --z: calc(var(--fixed) - var(--need));
+  background: repeating-linear-gradient(135deg, var(--mm-hatch) 0 2px, transparent 2px 7px), var(--mm-spent);
+}
+.mm-short {
+  --s: var(--fixed);
+  --z: calc(var(--need) - var(--fixed));
+  background: radial-gradient(circle, var(--neg) 1.1px, transparent 1.5px) 0 0 / 6px 6px, var(--mm-starve-bg);
+}
+.mm-need { --s: 0; --z: var(--need); z-index: 2; border: 2px dashed var(--text); border-radius: 3px; pointer-events: none; }
+.mm-seg {
+  --s: calc((var(--i) - 1) / 4);
+  --z: .25;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;             /* clear of the dashed outline's edge */
+  background: var(--pass-bg);
+  color: var(--pass-ink);
+  box-shadow: inset 0 0 0 1px var(--mm-seg-edge);
+  font: 600 var(--fs-micro)/1 var(--font-mono);
+}
+.mm-fixed {                 /* one piece per position, so the line is continuous */
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--fixed) * 100%);
+  border-left: 2.5px solid var(--dlm);
+  transform: translateX(-50%);
+}
+.mm-cap {                   /* maximum recurrent depth K */
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  border-right: 2px dashed var(--text-3);
+}
+.mm-tag {
+  --c: calc((var(--need) + var(--fixed)) / 2);   /* middle of the wasted or starved stretch */
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: calc(var(--c) * 100%);
+  transform: translate(-50%, -50%);
+  padding: 0 5px;
+  border-radius: var(--r-chip);
+  background: var(--surface);
+  font: 700 var(--fs-micro)/18px var(--font-body);
+  white-space: nowrap;
+}
+.mm-tag--waste { color: var(--text); box-shadow: 0 0 0 1px var(--dlm); }
+.mm-tag--short { color: var(--neg); box-shadow: 0 0 0 1px var(--neg); }
+.mm-linelab, .mm-caplab {
+  position: absolute;
+  z-index: 4;
+  bottom: calc(100% + 4px);
+  font: 700 var(--fs-micro)/1.2 var(--font-body);
+  white-space: nowrap;
+}
+.mm-linelab { left: calc(var(--fixed) * 100%); transform: translateX(-50%); color: var(--text); }
+.mm-caplab { right: 0; color: var(--text-2); font-weight: 600; }
+.mm-commit {                /* commit mark at the end of the last pass (rows: centred, clear of the rail above) */
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: calc(var(--n) * 25%);
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--commit);
+  color: var(--surface);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.mm-commit svg { width: 11px; height: 11px; }
+.mm-rail {                  /* latent state carried from one pass to the next */
+  position: absolute;
+  z-index: 1;
+  top: calc(80% + 2px);
+  height: 3px;
+  left: 12.5%;
+  width: calc((var(--n) - 1) * 25%);
+  border-radius: 2px;
+  background: var(--latent-edge);
+}
+.mm-ylab { order: 2; margin-top: 6px; color: var(--text-3); font: 500 var(--fs-micro)/1.3 var(--font-body); white-space: nowrap; }
+
+/* Confidence-based decoding: this step -> next step */
+.mm-defer {
+  margin-top: 14px;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+}
+.mm-defer__title { color: var(--text); font: 600 .8125rem/1.6 var(--font-body); text-wrap: balance; }
+.mm-defer__title code { font-size: .8125rem; }
+.mm-defer__title .mm-chip { height: 22px; vertical-align: 1px; }
+.mm-defer__grid {               /* narrow: this step above next step, fixed depths aligned */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px 10px;
+  margin: 8px 0 10px;
+}
+.mm-defer__grid > .mm-chip { justify-self: start; height: 22px; }
+.mm-defer__grid > .mm-chip:not(:nth-child(5)) { margin-top: 6px; }   /* gap between the 9 and 18 pairs */
+.mm-defer__grid > .mm-chip:not(:nth-child(5)) + .mm-step { margin-top: 6px; }
+.mm-defer__h { display: none; color: var(--text-3); font: 600 var(--fs-micro)/1.2 var(--font-body); }
+.mm-step { display: grid; grid-template-columns: 58px minmax(0, 1fr); align-items: center; gap: 6px; min-width: 0; }
+.mm-step__l { color: var(--text-3); font: 600 var(--fs-micro)/1.2 var(--font-body); white-space: nowrap; }
+.mm-mini { position: relative; display: block; height: 14px; }
+.mm-mini > span { position: absolute; top: 0; bottom: 0; }
+.mm-mini__bar { left: 0; width: calc(var(--fixed) * 100%); background: var(--mm-spent); box-shadow: inset -2.5px 0 0 var(--dlm); }
+.mm-mini__short {
+  left: calc(var(--fixed) * 100%);
+  width: calc((var(--need) - var(--fixed)) * 100%);
+  background: radial-gradient(circle, var(--neg) 1.1px, transparent 1.5px) 0 0 / 5px 5px, var(--mm-starve-bg);
+}
+.mm-mini__need { left: 0; width: calc(var(--need) * 100%); border: 1.5px dashed var(--text); border-radius: 2px; }
+.mm-swap { display: inline-flex; align-items: center; gap: 4px; color: var(--text-3); font-size: .875rem; line-height: 1; }
+.mm-x {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--neg);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--neg);
+  vertical-align: -3px;
+}
+.mm-x svg { width: 9px; height: 9px; }
+.mm-mask {
+  display: inline-grid;
+  place-items: center;
+  height: 20px;
+  padding: 0 4px;
+  border: 1px dashed var(--mask-edge);
+  border-radius: var(--r-xs);
+  background: var(--mask-bg);
+  color: var(--mask-ink);
+  font: 600 var(--fs-micro)/1 var(--font-mono);
+  vertical-align: 1px;
+}
+
+/* Legend */
+.mm-legend { padding: 2px 4px 0; gap: 6px 16px; }
+.mm-sw { flex: none; display: inline-block; width: 22px; height: 12px; border-radius: 2px; }
+.mm-sw--need { border: 2px dashed var(--text); }
+.mm-sw--waste { background: repeating-linear-gradient(135deg, var(--mm-hatch) 0 2px, transparent 2px 7px), var(--mm-spent); }
+.mm-sw--short { background: radial-gradient(circle, var(--neg) 1.1px, transparent 1.5px) 0 0 / 6px 6px, var(--mm-starve-bg); box-shadow: inset 0 0 0 1px var(--neg); }
+.mm-sw--pass { display: inline-flex; width: auto; height: 16px; overflow: hidden; }
+.mm-sw--pass span {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  background: var(--pass-bg);
+  color: var(--pass-ink);
+  box-shadow: inset 0 0 0 1px var(--mm-seg-edge);
+  font: 600 var(--fs-micro)/1 var(--font-mono);
+}
+.mm-sw--rail { width: 18px; height: 3px; background: var(--latent-edge); }
+.mm-legend .mm-commit--key { position: static; transform: none; box-shadow: none; }
+
+/* Columns: one vertical bar per position */
+@container mmfig (min-width: 560px) {
+  .mm-body { padding: 16px; }
+  .mm-defer__grid { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px 8px; }
+  .mm-defer__grid > .mm-chip:not(:nth-child(5)), .mm-defer__grid > .mm-chip:not(:nth-child(5)) + .mm-step { margin-top: 0; }
+  .mm-defer__h { display: block; }
+  .mm-step { display: block; }
+  .mm-step__l { display: none; }
+  .mm-panel { padding: 16px; }
+  .mm-plot { --h: 176px; position: relative; padding: 24px 0 0 22px; }
+  .mm-cols { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+  .mm-col { grid-template-columns: none; grid-template-rows: var(--h) auto; grid-template-areas: "track" "tok"; }
+  .mm-col > .mm-chip { justify-self: center; align-self: start; height: 24px; margin-top: 8px; }
+  .mm-track { --bx: max(22%, calc(50% - 18px)); border-left: 0; border-bottom: 1.5px solid var(--border-strong); }
+  .mm-col:first-child .mm-track { border-left: 1.5px solid var(--border-strong); }
+  .mm-plot--passes .mm-track {
+    background:
+      linear-gradient(var(--border), var(--border)) 0 25% / 100% 1px no-repeat,
+      linear-gradient(var(--border), var(--border)) 0 50% / 100% 1px no-repeat,
+      linear-gradient(var(--border), var(--border)) 0 75% / 100% 1px no-repeat;
+  }
+  .mm-g { top: auto; bottom: calc(var(--s) * 100%); left: var(--bx); right: var(--bx); width: auto; height: calc(var(--z) * 100%); }
+  .mm-seg { align-items: flex-end; justify-content: center; padding: 0 0 4px; }
+  .mm-fixed { top: auto; left: 0; right: 0; bottom: calc(var(--fixed) * 100%); border-left: 0; border-top: 2.5px solid var(--dlm); transform: translateY(50%); }
+  .mm-cap { bottom: auto; left: 0; border-right: 0; border-top: 2px dashed var(--text-3); }
+  .mm-tag { top: auto; left: 50%; bottom: calc(var(--c) * 100%); transform: translate(-50%, 50%); }
+  .mm-linelab { left: 300%; bottom: calc(var(--fixed) * 100% + 5px); }   /* over the boundary of columns 3 and 4 */
+  .mm-caplab { right: auto; left: 2px; bottom: calc(100% + 6px); }
+  .mm-commit { top: auto; left: calc(100% - var(--bx)); bottom: calc(var(--n) * 25%); transform: translate(-50%, 50%); }
+  .mm-rail { top: auto; bottom: 12.5%; left: calc(var(--bx) - 7px); width: 3px; height: calc((var(--n) - 1) * 25%); }
+  .mm-ylab {
+    position: absolute;
+    left: 0;
+    top: calc(24px + var(--h));
+    width: var(--h);
+    margin: 0;
+    line-height: 16px;
+    text-align: center;
+    transform: rotate(-90deg);
+    transform-origin: 0 0;
+  }
+}
+/* Panels side by side */
+@container mmfig (min-width: 900px) {
+  .mm-panels {                     /* the key fills the space under the shorter panel (b) */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "a b" "a key";
+  }
+  .mm-panel--dlm { grid-area: a; }
+  .mm-panel--ours { grid-area: b; }
+  .mm-legend { grid-area: key; align-self: end; padding: 0 4px 2px; }
+  .mm-panel__sub { min-height: calc(2em * 1.45); }   /* both plots start at the same height */
+}
+
+@media (forced-colors: active) {
+  .mm-track, .mm-mini, .mm-sw, .mm-commit, .mm-x { forced-color-adjust: none; }
+}
 
 /* --------------------------------------------------------------------------
    5h. Disclosure (details/summary) and Algorithm 1
