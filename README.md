@@ -80,8 +80,10 @@ Everything else (tables, figures, numbers) is reported as in the paper.
 ## Before going public
 
 - [x] Author list, affiliations and equal-contribution note in the header; authors in the BibTeX entry.
-- [ ] Turn the Paper / Code / Models placeholders into real links. They are `aria-disabled` buttons
-      with a "soon" tag now; make them `<a class="hero-link" href="...">` and drop the tag.
+- [ ] Turn the Paper / Code / ALoDLM-1.7B / ALoDLM-8B buttons into real links. They are
+      `aria-disabled` buttons with a "Coming soon" tooltip now; make each one
+      `<a class="pub-btn" href="...">` (same icon and label) and drop `aria-disabled`, `aria-label`
+      and `data-tip`.
 - [ ] Update the BibTeX venue, year and URL (and the sentence above it) once the decision is out.
 - [ ] Remove `<meta name="robots" content="noindex, nofollow">` from `index.html`.
 - [x] Footer line no longer says the page is anonymous.

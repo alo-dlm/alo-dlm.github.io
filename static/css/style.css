@@ -676,51 +676,54 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; line
   font: 400 clamp(.9375rem, .9rem + .2vw, 1.0625rem)/1.5 var(--font-body);
 }
 .authors__note sup { font-size: max(12px, .75em); }
-.hero__links {
+/* Paper / code / model buttons: dark rounded boxes with a coloured icon (ouro-llm.github.io style) */
+.pub-links {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px clamp(22px, 3vw, 40px);
+  gap: 10px 12px;
   margin-top: clamp(18px, 2.4vw, 30px);
 }
-.hero-link {
+.pub-btn {
+  --pub-bg: #363636;
+  --pub-bg-hover: #242424;
+  --pub-ink: #ffffff;
+  --pub-edge: transparent;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-height: 44px;
-  padding: 0 4px;
-  border: 0;
-  border-radius: var(--r-btn);
-  background: none;
-  color: var(--text);
-  font: 700 1.0625rem/1 var(--font-body);
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color var(--dur-1);
-}
-.hero-link svg { width: 24px; height: 24px; flex: none; }
-.hero-link:hover { color: var(--brand); }
-.hero-link[aria-disabled="true"],
-.hero-link[aria-disabled="true"]:hover { color: var(--text-3); cursor: not-allowed; }
-.hero-link__tag {
-  padding: 3px 7px;
-  border: 1px solid var(--border);
+  padding: 0 20px 0 16px;
+  border: 1px solid var(--pub-edge);
   border-radius: var(--r-pill);
-  background: var(--surface);
-  color: var(--text-3);
-  font: 600 var(--fs-micro)/1 var(--font-body);
-  letter-spacing: .04em;
+  background: var(--pub-bg);
+  color: var(--pub-ink);
+  font: 600 1rem/1 var(--font-body);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-1), box-shadow var(--dur-2), transform var(--dur-2) var(--ease);
 }
-/* Narrow screens: tighter name gaps; links as two even rows of two */
+a.pub-btn:hover { background: var(--pub-bg-hover); color: var(--pub-ink); box-shadow: var(--sh-md); transform: translateY(-1px); }
+.pub-btn[aria-disabled="true"] { cursor: default; }
+.pub-btn__icon { width: 20px; height: 20px; flex: none; }
+.pub-btn__icon--mono { color: var(--pub-ink); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pub-btn { --pub-bg: #1e293b; --pub-bg-hover: #273449; --pub-edge: #334155; }
+}
+:root[data-theme="dark"] .pub-btn { --pub-bg: #1e293b; --pub-bg-hover: #273449; --pub-edge: #334155; }
+/* Narrow screens: tighter name gaps; buttons as two even rows of two */
 @media (max-width: 599.98px) {
   .authors { line-height: 1.6; }
   .authors li { margin: 0 .3em; }
   .affils { gap: 2px 18px; }
+  .pub-links { display: grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: center; }
+  .pub-btn { width: 100%; }
 }
 @media (max-width: 379.98px) {
   .authors { font-size: 1.0625rem; }   /* stay within 6 lines, where balance applies */
-  .hero__links { display: grid; grid-template-columns: repeat(2, max-content); justify-content: center; column-gap: 28px; }
+  .pub-btn { padding: 0 14px 0 12px; }
 }
 
 @media (max-width: 559.98px) {
