@@ -9,7 +9,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='6' x2='28' y2='26' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%231d4ed8'/%3E%3Cstop offset='1' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66' fill='none' stroke='url(%23g)' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M23.1 6.6 17 9.9 18.3 2.1z' fill='url(%23g)' stroke='url(%23g)' stroke-width='1.4' stroke-linejoin='round'/%3E%3Crect x='12.4' y='12.4' width='7.2' height='7.2' rx='1.8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='t' x1='0' y1='0' x2='32' y2='32' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%231d4ed8'/%3E%3Cstop offset='1' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23t)'/%3E%3Cpath d='M13.74 13.73L12.41 12.4A5.1 5.1 0 1 0 12.41 19.6L19.59 12.4A5.1 5.1 0 1 1 19.59 19.6L18.26 18.27' fill='none' stroke='%23fff' stroke-width='3.2'/%3E%3C/svg%3E">
   <script>
     /* Theme bootstrap: apply a stored manual choice before first paint. */
     (function () {
@@ -68,17 +68,8 @@
   <header class="site-nav">
     <nav class="container container--full nav__inner" aria-label="Primary">
       <a class="brand" href="#top" aria-label="ALoDLM, back to top">
-        <svg class="brand__glyph" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="g-brand-nav" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
-              <stop offset="0" class="gs-a"/><stop offset="1" class="gs-b"/>
-            </linearGradient>
-          </defs>
-          <path d="M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66" fill="none" stroke="url(#g-brand-nav)" stroke-width="3.2" stroke-linecap="round"/>
-          <path d="M23.1 6.6 17 9.9 18.3 2.1z" fill="url(#g-brand-nav)" stroke="url(#g-brand-nav)" stroke-width="1.2" stroke-linejoin="round"/>
-          <rect x="12.6" y="12.6" width="6.8" height="6.8" rx="1.8" fill="url(#g-brand-nav)"/>
-        </svg>
-        <span class="brand__word">ALoDLM</span>
+        <span class="brand__org">Amazon AGI</span>
+        <span class="brand__word">A<span class="brand__lo">Lo</span>DLM</span>
       </a>
       <ul class="nav__links">
         <li><a href="#demo">Demo</a></li>
@@ -565,16 +556,7 @@
   <footer class="site-footer">
     <div class="container container--full footer__inner">
       <p class="footer__brand">
-        <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="g-brand-foot" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
-              <stop offset="0" class="gs-a"/><stop offset="1" class="gs-b"/>
-            </linearGradient>
-          </defs>
-          <path d="M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66" fill="none" stroke="url(#g-brand-foot)" stroke-width="3.2" stroke-linecap="round"/>
-          <path d="M23.1 6.6 17 9.9 18.3 2.1z" fill="url(#g-brand-foot)" stroke="url(#g-brand-foot)" stroke-width="1.2" stroke-linejoin="round"/>
-          <rect x="12.6" y="12.6" width="6.8" height="6.8" rx="1.8" fill="url(#g-brand-foot)"/>
-        </svg>
+        <svg class="footer__mark" viewBox="3.3 3.9 33.4 16.2" aria-hidden="true" focusable="false"><defs><linearGradient id="g-brand-foot" gradientUnits="userSpaceOnUse" x1="3.55" y1="0" x2="36.45" y2="0"><stop offset=".1" class="gs-a"/><stop offset=".9" class="gs-b"/></linearGradient></defs><path d="M18.1 10.08L15.73 7.7A6.1 6.1 0 1 0 15.73 16.3L24.27 7.7A6.1 6.1 0 1 1 24.27 16.3L21.9 13.92" fill="none" stroke="url(#g-brand-foot)" stroke-width="3.6"/></svg>
         <span>ALoDLM: Adaptively Looped Diffusion Language Models &middot; under review at ICLR 2027</span>
       </p>
       <a class="to-top" href="#top">Back to top <svg aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></a>

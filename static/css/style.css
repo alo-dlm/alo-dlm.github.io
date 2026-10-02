@@ -470,7 +470,32 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; line
   text-decoration: none;
 }
 .brand:hover { color: var(--text); }
-.brand__glyph { width: 28px; height: 28px; flex: none; }
+/* "Amazon AGI" badge before the wordmark (as wedlm.github.io's "WeChat AI"): Amazon orange,
+   dark ink (7:1), the same in both themes. Text only, no logo artwork. */
+.brand__org {
+  flex: none;
+  padding: 5px 9px 5px;
+  border-radius: var(--r-chip);
+  background: #ff9900;
+  color: #131a22;
+  font: 700 .8125rem/1 var(--font-display);
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.brand__lo { color: var(--brand); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .brand__lo {
+    background: linear-gradient(90deg, var(--brand) 5%, var(--accent) 95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .brand__org { border: 1px solid CanvasText; }
+  .brand__lo { color: LinkText; -webkit-text-fill-color: LinkText; background: none; }
+}
 .brand__word { white-space: nowrap; }
 .nav__links {
   display: flex;
@@ -1969,7 +1994,7 @@ html.js:not(.is-ready) #results-table { --mount-min-h: 1180px; }
 }
 .footer__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .footer__brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text-2); }
-.footer__brand svg { width: 22px; height: 22px; }
+.footer__brand .footer__mark { width: 31px; height: 15px; flex: none; }
 .to-top { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-weight: 600; text-decoration: none; }
 .to-top svg { width: 16px; height: 16px; }
 
