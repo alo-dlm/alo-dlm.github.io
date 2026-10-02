@@ -1,7 +1,6 @@
 /* ==========================================================================
    loop-stepper.css: the Part 01 method explainer (#loop-stepper).
-   Owner: loop-stepper widget. Contract: site_contract.md.
-   Uses the shared tokens only (incl. the D7 commitment-pass ramp via
+   Uses the shared tokens only (incl. the shared commitment-pass ramp via
    [data-pass] -> --pass-bg / --pass-ink). Widget-local custom properties are
    prefixed --ls-. All rules are scoped under #loop-stepper.
    ========================================================================== */
@@ -34,7 +33,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-card);
-  box-shadow: var(--sh-lg);
+  box-shadow: var(--sh-md);
 }
 
 /* Top bar: view tabs */
@@ -107,6 +106,14 @@
   font: 500 var(--fs-micro)/1.2 var(--font-body);
 }
 #loop-stepper .ls-step[data-mode="standard"] .ls-schem { display: inline-block; }
+#loop-stepper .ls-schem.ls-schem--meter { display: inline-block; margin-left: 2px; padding: 1px 6px; vertical-align: 1px; }
+/* Settings chip (ALoDLM) and "schematic" tag (Standard DLM) share one cell,
+   so switching modes never moves the row. */
+#loop-stepper .ls-rowtag { display: grid; align-items: center; justify-items: end; }
+#loop-stepper .ls-rowtag > * { grid-area: 1 / 1; }
+@media (max-width: 449.98px) {
+  #loop-stepper .ls-rowtag { justify-items: start; }   /* the row wraps: tag starts its own line */
+}
 
 #loop-stepper .ls-dots { display: flex; align-items: center; }
 #loop-stepper .ls-dot {
@@ -759,6 +766,21 @@
   #loop-stepper .ls-dot { width: 24px; }
   #loop-stepper .ls-foot .btn { padding: 0 12px; }
   #loop-stepper .ls-play { min-width: 0; }
+}
+/* Smallest phones: Prev becomes an icon button (its text stays as the name),
+   so the footer never wraps and the card keeps one height in every frame. */
+@media (max-width: 379.98px) {
+  #loop-stepper .ls-prev { padding: 0 10px; }
+  #loop-stepper .ls-prev .ls-ico { margin-left: 0; }
+  #loop-stepper .ls-prev span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 @media (hover: none) {
   #loop-stepper .ls-keys { display: none; }

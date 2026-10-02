@@ -5,9 +5,9 @@
      #results-table   (data-widget="results")          Table 1, from window.ALODLM_RESULTS
      #analysis-charts (data-widget="analysis-charts")  Figure 4 (middle and right) values
 
-   Contract: site_contract.md (window.ALODLM from site.js; no edits to shared files).
+   Uses window.ALODLM from static/js/site.js.
    Styles: static/css/results.css (prefixes rt- for the table, ac- for the charts).
-   QA handle: window.ALODLM_RESULTS_UI (state setters and the result of the dev check).
+   Debug hook: window.ALODLM_RESULTS_UI (state setters and the result of the data check).
    ========================================================================== */
 (function () {
   'use strict';
@@ -90,7 +90,10 @@
   function groupLabel(type, n) {
     if (type === 'AR') { return 'AR'; }
     if (type === 'Ours') { return 'Ours'; }
-    return n > 1 ? 'Diffusion LMs' : 'DLM';
+    if (n < 2) { return 'DLM'; }
+    /* Narrow screens show the short form, so the sticky Ours column never
+       covers the label (results.css). */
+    return [h('span', { 'class': 'rt-grp__full' }, 'Diffusion LMs'), h('span', { 'class': 'rt-grp__abbr' }, 'DLM')];
   }
 
   function signed(d) {
@@ -575,7 +578,7 @@
         h('p', { 'class': 'ac-sub' },
           h('strong', null, 'Numbers halt least'), ' at the first pass (', h('span', { 'class': 'ac-num' }, '0.369'),
           ', about ', h('span', { 'class': 'ac-num' }, HALT.belowMean), ' below the cross-dataset mean of ',
-          h('span', { 'class': 'ac-num' }, HALT.mean), '), so they receive more latent refinement: a preference learned without difficulty labels.')),
+          h('span', { 'class': 'ac-num' }, HALT.mean), '), indicating a learned preference for more latent refinement at numerical positions, without difficulty labels.')),
       h('div', { 'class': 'ac-body' }, lp, tableB),
       h('p', { 'class': 'ac-cap' }, 'Mean first-pass halting probability of ALoDLM-8B by token category, averaged equally over GSM8K, MATH-500, MBPP (sanitized) and HumanEval. ' +
         'Values as printed in Figure 4 (right); the axis is zoomed to 0.35\u20130.45, while the figure above shows the bars from zero.'));

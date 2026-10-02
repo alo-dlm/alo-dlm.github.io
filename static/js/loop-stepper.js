@@ -1,10 +1,11 @@
 /* ==========================================================================
    loop-stepper.js: the Part 01 method explainer, mounted in #loop-stepper.
-   Owner: loop-stepper widget. Contract: site_contract.md. Styles: loop-stepper.css.
+   Styles: static/css/loop-stepper.css. Uses window.ALODLM (static/js/site.js).
 
    View 1, "One denoising step": a step-through of one ALoDLM denoising step on
    a real span of an ALoDLM-8B GSM8K response (case-study response (a)), using
-   the commitment pass recorded for every token. A "Standard DLM" mode shows,
+   the commitment pass recorded for every token. The traces record only that
+   pass, so the halting meter is schematic. A "Standard DLM" mode shows,
    schematically, how a fixed-depth step discards latent work.
    View 2, "Fixed vs adaptive depth": passes each position receives before it
    commits, fixed-depth DLM vs ALoDLM, for the same span.
@@ -295,8 +296,10 @@
     /* ------------------------------------------------------ card + tabs */
     var tabs = [];
     var panels = [];
+    /* The short label (narrow screens) is part of the full one, which is the
+       accessible name, so speech input can use the visible words. */
     var VIEW_NAMES = [
-      { full: 'One denoising step', short: 'One step' },
+      { full: 'One denoising step', short: 'Denoising step' },
       { full: 'Fixed vs adaptive depth', short: 'Fixed vs adaptive' }
     ];
     var tablist = h('div', { 'class': 'seg ls-tabs', role: 'tablist', 'aria-label': 'Method explainer' });
@@ -335,8 +338,8 @@
       })(di);
     }
     var label = h('span', { 'class': 'ls-label' });
-    var schematic = h('span', { 'class': 'ls-schem' }, 'schematic');
-    p1.appendChild(h('div', { 'class': 'ls-head' }, dotsWrap, h('span', { 'class': 'ls-head__right' }, schematic, label)));
+    var schematic = h('span', { 'class': 'ls-schem' }, 'schematic');   /* Standard DLM mode; shares a cell with the settings chip */
+    p1.appendChild(h('div', { 'class': 'ls-head' }, dotsWrap, h('span', { 'class': 'ls-head__right' }, label)));
 
     // Stage
     var stage = h('div', {
@@ -359,7 +362,7 @@
       html: '<var>K</var> = ' + K + ' &middot; <var>&tau;</var> = ' + span.tau + ' &middot; <var>q</var> = ' + span.q,
       title: 'Decoding setting of the recorded trace'
     });
-    stage.appendChild(h('div', { 'class': 'ls-row' }, modeSeg, settings));
+    stage.appendChild(h('div', { 'class': 'ls-row' }, modeSeg, h('span', { 'class': 'ls-rowtag' }, settings, schematic)));
 
     // Flow: architecture rails + halting meter, SVG wires drawn over them
     function blk(cls, name, sub) {
@@ -398,7 +401,7 @@
     var varAlo = h('div', {
       'class': 'ls-variant ls-variant--alo', role: 'img',
       'aria-label': 'ALoDLM: the Prelude, then the Recurrent Core, looped for at most K = ' + K +
-        ' recurrent passes (the maximum recurrent depth), then the Coda readout, which feeds the LM head and the exit gate. Committed tokens return to the core as token embeddings; the exit gate drives the halting meter.'
+        ' recurrent passes (the maximum recurrent depth), with a Coda readout after every pass that feeds the LM head and the exit gate. Committed tokens return to the core as token embeddings; the exit gate drives the halting meter (schematic).'
     }, wiresAlo, embLabel, railAlo);
 
     var meterFill = h('span', { 'class': 'ls-meter__fill' });
@@ -409,7 +412,8 @@
       meterTrack,
       h('span', { 'class': 'ls-meter__head' },
         h('span', { 'class': 'ls-meter__title' }, 'Mean cumulative halting probability',
-          h('span', { 'class': 'ls-meter__over' }, ' over unresolved positions')),
+          h('span', { 'class': 'ls-meter__over' }, ' over unresolved positions'),
+          ' ', h('span', { 'class': 'ls-schem ls-schem--meter' }, 'schematic')),
         meterStatus));
 
     var SB = {
@@ -554,7 +558,7 @@
         h('span', { 'class': 'ls-chart__sub' }, fixed ? 'passes in this step' : 'passes before commitment'));
       var capText = fixed
         ? 'Same depth for every masked position: one fixed-depth pass per step. A deferred position loses that latent work and restarts from [MASK] at the next step.'
-        : 'Depth follows difficulty: a position keeps refining its latent state until it commits, here after ' +
+        : 'Depth varies by position: a position keeps refining its latent state until it commits, here after ' +
           minPass + ' to ' + maxPass + ' recurrent passes (maximum recurrent depth ' + K + ').';
       var el = h('div', { 'class': 'ls-chart' }, head, plot, table, h('p', { 'class': 'ls-chart__cap' }, capText));
       return { el: el, cols: cols, rows: rows, plot: plot };
@@ -595,6 +599,7 @@
     /* ------------------------------------------------------------ footnote */
     var footnote = h('p', { 'class': 'ls-footnote' },
       'Commitment passes are recorded values for this span of a real ALoDLM-8B GSM8K response; placing these tokens in a single denoising step is illustrative. ' +
+      'The traces record only each token\u2019s commitment pass, so the halting meter is schematic (entropies and halting probabilities were not recorded). ' +
       'Tokens are shown as generated (LaTeX source).');
 
     root.appendChild(h('div', { 'class': 'ls', style: { '--kmax': String(K) } },
@@ -704,7 +709,7 @@
         meter.setAttribute('data-state', f.meter);
         meterFill.style.setProperty('--lvl', String(f.lvl || 0));
         meterStatus.textContent = f.meter === 'stop' && f.stopAtK ? 'loop ends at s = K' : METER_STATUS[f.meter];
-        meter.setAttribute('aria-label', 'Mean cumulative halting probability over unresolved positions: ' +
+        meter.setAttribute('aria-label', 'Mean cumulative halting probability over unresolved positions (schematic): ' +
           (f.meter === 'stop' && f.stopAtK ? 'the loop ends; at s = K the exit gate halts with probability 1' : METER_SR[f.meter]));
       } else {
         SB.den.classList.toggle('is-on', !!on.den);
@@ -1005,7 +1010,7 @@
     render(false);
     layout();
 
-    /* Optional handle for scripted QA (no other globals). */
+    /* Debug hook for testing from the browser console. */
     window.ALODLM_LOOP_STEPPER = {
       state: function () {
         return { view: st.view, mode: st.mode, frame: st.frame, frames: frames().length, playing: st.playing, auto: st.auto, sweep: st.sweep };

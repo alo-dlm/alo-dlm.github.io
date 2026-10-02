@@ -4,6 +4,19 @@ Private, anonymous project page for **ALoDLM: Adaptively Looped Diffusion Langua
 (under double-blind review as a conference paper at ICLR 2027).
 Plain HTML, CSS and JavaScript: no framework, no build step, no package manager.
 
+## While under review
+
+Keep the repository anonymous until the paper is de-anonymized:
+
+- In every clone, set an anonymous identity before committing (local git config is not pushed, so a
+  fresh clone would otherwise commit under your own name and email):
+  `git config user.name Anonymous && git config user.email anonymous@anonymous.invalid`
+- Commit with `TZ=UTC` (for example `TZ=UTC git commit ...`): commit dates store the local UTC offset,
+  which hints at a location.
+- Do not make the repository public, add outside collaborators or enable GitHub Pages. GitHub also shows
+  which account pushed each update (repository Activity), so anonymous commit metadata alone is not
+  enough once others can see the repository.
+
 ## Preview locally
 
 - Open `index.html` directly in a browser. `file://` works: all data lives in JS files that set
@@ -36,7 +49,8 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
 ## Content sources
 
 - Abstract, figure captions, equations and every number come from the final paper. The abstract and
-  captions are verbatim.
+  captions are verbatim, except that Figure 1's caption is split between its two panels (its title is
+  the section lead) and site-added notes are marked as such (e.g. Figure 2's reading guide).
 - Table 1 is generated into `static/data/results.js` from a twice-verified transcription of the paper
   table (values, bold/underline marks and the caption).
 - Figures were converted from the paper's figure PDFs. They stay on white "paper" cards in dark mode
@@ -50,10 +64,13 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
 
 - **Decoding replay (hero):** both panes replay the same ALoDLM-8B response. Pacing is scaled from
   measured single-stream GSM8K throughput (229.3 vs 612.4 tok/s, Fig. 1 right) and slowed for
-  readability. Token colours are recorded commitment passes; the grouping of tokens into denoising
-  steps is illustrative.
+  readability. The 612.4 tok/s operating point is faster than the setting the traces were recorded
+  with (q = 0.5, τ = 0.4; the paper measures 278.7–508.3 tok/s at q = 0.5 for τ from 0.1 to 0.6), and
+  it is a different checkpoint; the page says so. Token colours are recorded commitment passes; the
+  grouping of tokens into denoising steps is illustrative.
 - **Method step-through:** a real span with its recorded commitment passes; placing these tokens in a
-  single denoising step is illustrative.
+  single denoising step is illustrative. The traces record only commitment passes, so the halting
+  meter is schematic (labelled on the page).
 
 Everything else (tables, figures, numbers) is reported as in the paper.
 
@@ -67,8 +84,11 @@ Everything else (tables, figures, numbers) is reported as in the paper.
 - [ ] Revisit the footer line ("Anonymous project page for a paper under double-blind review.").
 - [ ] Optionally add Open Graph / Twitter meta tags (e.g. `static/images/teaser_throughput.png`).
 - [ ] Re-check figures and data for anything that should stay private.
-- [ ] While the page is anonymous, commit with a repository-local anonymous git identity: commit
-      metadata becomes visible once the repository is public.
+- [ ] Figure 1 (right) prints an inference-engine label under ALoDLM-8B, copied from the paper's figure,
+      while the paper's text describes ALoDLM's engine differently. Confirm the label, or re-export the
+      figure without it (`static/images/teaser_throughput.svg` and `.png`).
+- [ ] Check the commit history for anything identifying (identities, UTC offsets in dates) before it
+      becomes visible; see "While under review".
 - [ ] Make the repository public and enable GitHub Pages: Settings → Pages → Deploy from a branch →
       `main` / `(root)`. The site will be served at <https://alo-dlm.github.io>.
 

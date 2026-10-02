@@ -1,7 +1,7 @@
 /* ==========================================================================
    demo-replay.js: the hero "decoding replay" (an illustrative replay).
-   Owner: demo-replay widget. Mount: #demo (data-widget="demo-replay").
-   Styles: static/css/demo-replay.css. Contract: site_contract.md.
+   Mount: #demo (data-widget="demo-replay"). Styles: static/css/demo-replay.css.
+   Uses the shared helpers in window.ALODLM (static/js/site.js).
 
    Data: window.ALODLM_TRACES
      examples[i].tokens = [[text, s], ...]   s = recorded commitment pass 1..K
@@ -300,7 +300,7 @@
       h('span', { 'class': 'legend__title' }, h('span', { 'class': 'dr-legend__long' }, 'Commitment '), 'pass'),
       [1, 2, 3, 4].map(function (n) {
         return h('span', { 'class': 'legend__item' },
-          h('span', { 'class': 'dr-sw', 'data-pass': String(n), 'aria-label': 'pass ' + n }, String(n)));
+          h('span', { 'class': 'dr-sw', 'data-pass': String(n) }, String(n)));
       }),
       h('span', { 'class': 'legend__item dr-legend__lat' }, h('span', { 'class': 'dr-sw dr-sw--lat', 'aria-hidden': 'true' }), 'uncommitted'));
 
@@ -320,7 +320,7 @@
       h('strong', null, 'Illustrative replay, not a live model.'),
       ' Both panes replay the same ALoDLM-8B response to a GSM8K test question, so only the pacing differs. ' +
       'Pacing is scaled from measured single-stream GSM8K throughput on one B200 (', figLink(),
-      ': about ' + Math.round(R_AR) + ' vs ' + Math.round(R_ALO) + ' tokens/s) and ', slowTxt,
+      ': about ' + Math.round(R_AR) + ' vs ' + Math.round(R_ALO) + ' tokens/s; the ALoDLM rate comes from a faster decoding setting than the recorded passes) and ', slowTxt,
       '. Token colours are the recorded commitment passes (', eq('K', K), '); the grouping of tokens into denoising steps (' +
       G + ' consecutive tokens each) is illustrative.');
 
@@ -337,8 +337,9 @@
           'Positions not yet committed are drawn as placeholders.'),
         h('li', null, 'The passes were recorded with ', eq('K', K), ', exit threshold ', eq('q', meta.q || 0.5), ', entropy threshold ',
           eq('\u03c4', meta.tau || 0.4), ' and a ' + (meta.window || 16) +
-          '-token window, with a different ALoDLM-8B checkpoint than the one used for the throughput measurements ' +
-          '(the traces behind the paper’s case-study figure).'),
+          '-token window (the traces behind the paper\u2019s case-study figure). They come from a different ALoDLM-8B checkpoint ' +
+          'and a slower decoding setting than the operating point that sets the pacing (', figLink(), '): with ', eq('q', '0.5'),
+          ', the paper measures 278.7 to 508.3 tok/s for ', v('\u03c4'), ' from 0.1 to 0.6.'),
         h('li', null, 'The Qwen3-8B pane types the same response one token at a time; Qwen3-8B\u2019s own output is not shown. ' +
           'Chat-template and end-of-sequence tokens are hidden.')));
 
@@ -399,6 +400,7 @@
 
     function resetRun() {
       stopLoop();
+      live.textContent = '';   /* never leave the previous run's summary behind */
       st.sim = 0; st.last = 0;
       st.arN = 0; st.aloN = 0; st.stepIdx = -1; st.evIdx = 0; st.pass = 0;
       st.counts = [0, 0, 0, 0, 0];
@@ -606,18 +608,19 @@
       }
     }
 
-    /* Final state without animation (reduced motion). */
-    function renderFinal() {
+    /* Final state without animation (reduced motion). announce: the user asked
+       for it (e.g. picked another example), so the summary is read out. */
+    function renderFinal(announce) {
       resetRun();
       wrap.classList.add('dr--instant');
       var S = st.S;
       st.sim = Math.max(S.Tar, S.Talo);
       advance(st.sim);
       paint(null, false);
-      finish(false);
+      finish(!!announce);
     }
 
-    /* QA / debugging: show the state at simulated time t (paused). */
+    /* Debug hook: show the state at simulated time t (paused). */
     function seek(t) {
       var S = st.S;
       t = Math.max(0, Math.min(+t || 0, Math.max(S.Tar, S.Talo)));
@@ -659,7 +662,7 @@
       var i = parseInt(select.value, 10);
       if (!(i >= 0 && i < examples.length)) { return; }
       loadExample(i);
-      if (reduced) { renderFinal(); }
+      if (reduced) { renderFinal(true); }
       else if (st.inView && st.pageVisible) { play(); }
     });
 
@@ -682,7 +685,12 @@
       }, { passive: true });
     });
 
-    A.onVisible(win, function (visible) { st.inView = visible; onConditions(); }, 0.4);
+    /* In view: the race rows are on screen (they sit near the fold on many
+       laptops), or most of the window is (while reading the transcripts). */
+    var seen = { race: false, win: false };
+    function setInView() { st.inView = seen.race || seen.win; onConditions(); }
+    A.onVisible(rowAlo.row, function (visible) { seen.race = visible; setInView(); }, 0.9);
+    A.onVisible(win, function (visible) { seen.win = visible; setInView(); }, 0.4);
     A.onPageVisibility(function (visible) { st.pageVisible = visible; onConditions(); });
     A.onReducedMotionChange(function (isReduced) {
       reduced = isReduced;
@@ -694,6 +702,7 @@
     loadExample(defIdx);
     if (reduced) { renderFinal(); }
 
+    /* Debug hook for testing from the browser console. */
     window.ALODLM_DEMO_REPLAY = {
       play: play,
       pause: function () { pause('user'); },

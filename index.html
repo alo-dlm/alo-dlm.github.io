@@ -97,7 +97,7 @@
     <!-- ===================================================== Hero -->
     <section id="top" class="hero" data-spy="">
       <div class="container">
-        <p class="pill"><span class="pill__dot" aria-hidden="true"></span>Under review as a conference paper at ICLR 2027</p>
+        <p class="pill"><span class="pill__dot" aria-hidden="true"></span><span class="pill__long">Under review as a conference paper at ICLR 2027</span><span class="pill__short">Under review at ICLR 2027</span></p>
         <h1 class="hero__title"><span class="grad">ALoDLM</span>: Adaptively Looped Diffusion Language Models</h1>
         <p class="hero__byline">Anonymous Authors</p>
         <div class="hero__actions">
@@ -130,7 +130,7 @@
         <div id="demo" class="widget-mount" data-widget="demo-replay">
           <div class="widget-fallback">
             <strong>Decoding replay</strong>
-            An illustrative side-by-side replay of one ALoDLM-8B response to a GSM8K question, paced from measured single-stream GSM8K throughput (229.3 tok/s for vLLM-served Qwen3-8B, 612.4 tok/s for ALoDLM-8B). It needs JavaScript.
+            An illustrative side-by-side replay of one ALoDLM-8B response to a GSM8K question, paced from measured single-stream GSM8K throughput (Figure 1, right: 229.3 tok/s for vLLM-served Qwen3-8B, 612.4 tok/s for ALoDLM-8B). It needs JavaScript.
           </div>
         </div>
       </div>
@@ -143,8 +143,7 @@
           <h2 id="abstract-title" data-anchor="abstract">Abstract</h2>
         </div>
         <div class="prose abstract">
-          <p>Diffusion language models (DLMs) enable fast generation by predicting multiple tokens in parallel, yet their practical adoption remains hindered by a persistent quality gap relative to comparably sized autoregressive models. We attribute this gap to a <em>computation&ndash;difficulty mismatch</em>: within a partially observed sequence, some unknown tokens are readily predictable, while others require substantially more computation to resolve. Existing DLMs, however, apply uniform computational depth to every unknown position at each denoising step. We introduce <strong>ALoDLM</strong>, which replaces this uniform computation with token-adaptive latent recurrence. At each denoising step, ALoDLM iteratively refines representations in latent space, allocating computation based on token difficulty. Tokens ready to commit are fed back as discrete context, while unresolved tokens retain and refine their latent states through additional recurrent passes. To learn both token prediction and computation allocation end-to-end, we formulate token-wise computation schedules as latent variables and derive a conditional negative evidence lower bound (NELBO). We train ALoDLM at 1.7B and 8B parameter scales. Across eleven benchmarks, ALoDLM outperforms all evaluated DLMs and the corresponding autoregressive baselines in average benchmark score at both scales.</p>
-          <p>Importantly, ALoDLM combines superior generation quality with fast parallel decoding, establishing a strong quality&ndash;efficiency trade-off among all evaluated autoregressive and diffusion models under optimized inference engines.</p>
+          <p>Diffusion language models (DLMs) enable fast generation by predicting multiple tokens in parallel, yet their practical adoption remains hindered by a persistent quality gap relative to comparably sized autoregressive models. We attribute this gap to a <em>computation&ndash;difficulty mismatch</em>: within a partially observed sequence, some unknown tokens are readily predictable, while others require substantially more computation to resolve. Existing DLMs, however, apply uniform computational depth to every unknown position at each denoising step. We introduce <strong>ALoDLM</strong>, which replaces this uniform computation with token-adaptive latent recurrence. At each denoising step, ALoDLM iteratively refines representations in latent space, allocating computation based on token difficulty. Tokens ready to commit are fed back as discrete context, while unresolved tokens retain and refine their latent states through additional recurrent passes. To learn both token prediction and computation allocation end-to-end, we formulate token-wise computation schedules as latent variables and derive a conditional negative evidence lower bound (NELBO). We train ALoDLM at 1.7B and 8B parameter scales. Across eleven benchmarks, ALoDLM outperforms all evaluated DLMs and the corresponding autoregressive baselines in average benchmark score at both scales. Importantly, ALoDLM combines superior generation quality with fast parallel decoding, establishing a strong quality&ndash;efficiency trade-off among all evaluated autoregressive and diffusion models under optimized inference engines.</p>
         </div>
       </div>
     </section>
@@ -169,12 +168,12 @@
           <li class="contrib">
             <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-bars"/></svg></span>
             <h3 class="contrib__title">Scaling and performance</h3>
-            <p class="contrib__body">To the best of our knowledge, ALoDLM-8B is the largest looped DLM to date. It has the best average score among all evaluated DLMs and beats its Qwen3 AR counterparts across eleven benchmarks (65.5 vs 63.8 at 1.7B, 80.3 vs 78.5 at 8B), with direct SFT on a 5B-token corpus.</p>
+            <p class="contrib__body">To the best of our knowledge, ALoDLM-8B is the largest looped DLM to date. It has the best average score among all evaluated DLMs and beats its Qwen3 AR counterparts in average score over eleven benchmarks (65.5 vs 63.8 at 1.7B, 80.3 vs 78.5 at 8B), with direct SFT on a 5B-token corpus.</p>
           </li>
           <li class="contrib">
             <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-bolt"/></svg></span>
             <h3 class="contrib__title">Fast decoding and test-time scaling</h3>
-            <p class="contrib__body">On GSM8K, ALoDLM-8B delivers &asymp;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy. Recurrent depth is an effective test-time scaling axis, and the model learns token-dependent refinement without explicit difficulty labels.</p>
+            <p class="contrib__body">On GSM8K, ALoDLM-8B delivers &asymp;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy. Recurrent depth is an effective test-time scaling axis, and the model learns token-dependent refinement preferences without explicit difficulty labels.</p>
           </li>
         </ul>
       </div>
@@ -197,7 +196,7 @@
               <img src="static/images/teaser_benchmarks.svg" width="620" height="392" decoding="async" data-zoom data-zoom-width="1300" data-zoom-min="560"
                    alt="Radar chart of 11 benchmarks: ALoDLM-8B forms the outermost polygon on most axes versus LLaDA-8B, Dream-7B, Fast-dLLM-v2, Qwen3-8B, SDAR-8B and WeDLM-8B.">
             </div>
-            <figcaption class="fig__caption"><strong>Holistic capability.</strong> ALoDLM-8B outperforms all baselines on average across 11 reasoning, coding, and knowledge benchmarks.</figcaption>
+            <figcaption class="fig__caption"><strong>Left:</strong> ALoDLM-8B outperforms all baselines on average across 11 reasoning, coding, and knowledge benchmarks.</figcaption>
           </figure>
           <figure class="fig" id="fig-1-right">
             <div class="fig__head">
@@ -206,9 +205,9 @@
             </div>
             <div class="fig__media">
               <img src="static/images/teaser_throughput.svg" width="633" height="477" decoding="async" data-zoom data-zoom-width="1300" data-zoom-min="560"
-                   alt="Scatter of GSM8K accuracy versus single-stream throughput on one B200: ALoDLM-8B sits at the top right (93.3% at 612 tok/s), ahead of WeDLM-8B, vLLM-served Qwen3-8B and the other diffusion LLMs.">
+                   alt="Scatter of GSM8K accuracy versus single-stream throughput on one B200: ALoDLM-8B sits at the top right (93.25% at 612.4 tok/s), ahead of WeDLM-8B, vLLM-served Qwen3-8B and the other diffusion LLMs.">
             </div>
-            <figcaption class="fig__caption"><strong>Speed vs. accuracy.</strong> On GSM8K, ALoDLM-8B delivers &sim;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy, while outperforming the diffusion baselines shown in both accuracy and throughput. Single-stream throughput on one NVIDIA B200; every model runs on an optimized inference engine.</figcaption>
+            <figcaption class="fig__caption"><strong>Right:</strong> On GSM8K, ALoDLM-8B delivers &sim;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy, while outperforming the diffusion baselines shown in both accuracy and throughput.</figcaption>
           </figure>
         </div>
       </div>
@@ -309,11 +308,13 @@
                   <p class="algo-eqs__title">One recurrent pass</p>
                   <div class="eq">
                     <div class="eq__label"><b>(1)</b> Core and readout</div>
-                    <div class="eq__math" data-tex data-display><code>\widetilde h^{(s)} = \mathsf{Recurrent\ Core}\bigl(h^{(s-1)}\bigr), \qquad r^{(s)} = \mathsf{Coda}\bigl(\widetilde h^{(s)}\bigr), \qquad s = 1,\ldots,K</code></div>
+                    <div class="eq__math" data-tex data-display
+                         data-tex-narrow="\begin{gathered} \widetilde h^{(s)} = \mathsf{Recurrent\ Core}\bigl(h^{(s-1)}\bigr), \\ r^{(s)} = \mathsf{Coda}\bigl(\widetilde h^{(s)}\bigr), \qquad s = 1,\ldots,K \end{gathered}"><code>\widetilde h^{(s)} = \mathsf{Recurrent\ Core}\bigl(h^{(s-1)}\bigr), \qquad r^{(s)} = \mathsf{Coda}\bigl(\widetilde h^{(s)}\bigr), \qquad s = 1,\ldots,K</code></div>
                   </div>
                   <div class="eq">
                     <div class="eq__label"><b>(2)</b> LM head and per-pass halting probability</div>
-                    <div class="eq__math" data-tex data-display><code>p_i^{(s)} = \operatorname{softmax}\bigl(\mathsf{LMHead}(r_i^{(s)})\bigr), \qquad
+                    <div class="eq__math" data-tex data-display
+                         data-tex-narrow="\begin{gathered} p_i^{(s)} = \operatorname{softmax}\bigl(\mathsf{LMHead}(r_i^{(s)})\bigr), \\ \lambda_i^{(s)} = \begin{cases} \sigma\bigl(\mathsf{ExitGate}(\operatorname{sg}[r_i^{(s)}])\bigr), &amp; s &lt; K, \\ 1, &amp; s = K. \end{cases} \end{gathered}"><code>p_i^{(s)} = \operatorname{softmax}\bigl(\mathsf{LMHead}(r_i^{(s)})\bigr), \qquad
    \lambda_i^{(s)} = \begin{cases} \sigma\bigl(\mathsf{ExitGate}(\operatorname{sg}[r_i^{(s)}])\bigr), &amp; s &lt; K, \\ 1, &amp; s = K. \end{cases}</code></div>
                   </div>
                   <div class="eq">
@@ -350,7 +351,7 @@
                     <li class="algo__line" style="--i:1"><span class="algo__ln">18:</span><span><var>x<sub>i</sub></var> &larr; <var>&ycirc;<sub>i</sub></var>, &ensp;<var>i</var> &isin; <var>C</var></span></li>
                     <li class="algo__line" style="--i:0"><span class="algo__ln">19:</span><span><span class="kw">return</span> <var>x</var></span></li>
                   </ol>
-                  <p class="note block-gap">Line 5 produces the core output <span data-tex><code>\widetilde h^{(s)}</code></span>; line 6 is a readout branch, and the next pass continues from the pre-Coda state. The quality evaluation (Table&nbsp;1) uses greedy token selection in place of <span class="fn">Sample</span>.</p>
+                  <p class="note block-gap">Line 5 produces the core output <span class="nowrap"><span data-tex><code>\widetilde h^{(s)}</code></span>;</span> line 6 is a readout branch, and the next pass continues from the pre-Coda state. Table&nbsp;1 uses a single-token quality preset: greedy token selection in place of <span class="fn">Sample</span>, one token committed per model pass with <var>&tau;</var> inactive, a 16-token window, and <var>q</var>&nbsp;=&nbsp;0.4 (1.7B) or 0.5 (8B). Figures&nbsp;1 and&nbsp;3 use the parallel decoder with the entropy rule of lines 9&ndash;11.</p>
                 </div>
               </div>
             </div>
@@ -366,22 +367,29 @@
             <span class="part-eyebrow">ALoDLM training</span>
             <h3 class="part-title" data-anchor="training">Exit schedules as latent variables</h3>
           </div>
-          <p class="part-intro training-intro">Training learns a denoiser together with a halting policy. An exit schedule <span data-tex><code>\mathbf{z}\in\{1,\ldots,K\}^{|\mathcal{M}_t|}</code></span> assigns every masked position <var>i</var> an exit depth <span data-tex><code>z_i</code></span>: token <var>i</var> commits after recurrent pass <span data-tex><code>z_i</code></span>. Together with the noisy sequence <span data-tex><code>\mathbf{x}_t</code></span>, a schedule fully determines one denoising step of up to <var>K</var> passes.</p>
+          <p class="part-intro training-intro">Training learns a denoiser together with a halting policy. An exit schedule <span data-tex><code>\mathbf{z}</code></span> assigns every masked position <span data-tex><code>i\in\mathcal{M}_t</code></span> an exit depth <span class="nowrap"><span data-tex><code>z_i\in\{1,\ldots,K\}</code></span>:</span> token <var>i</var> commits after recurrent pass <span class="nowrap"><span data-tex><code>z_i</code></span>.</span> Together with the noisy sequence <span class="nowrap"><span data-tex><code>\mathbf{x}_t</code></span>,</span> a schedule fully determines one denoising step of up to <var>K</var> passes.</p>
 
           <div class="eq-card block-gap" role="group" aria-label="Training equations">
             <div class="eq">
               <div class="eq__label"><b>Eq. 5</b> Conditional NELBO</div>
-              <div class="eq__math" data-tex data-display><code>J(\theta,\phi;\mathbf{x}_t,\mathbf{y}) := \mathbb{E}_{\mathbf{z}\sim q_\phi}\Biggl[\underbrace{-\sum_{i\in\mathcal{M}_t}\log p_{\theta,i}^{(z_i)}\bigl(y_i\mid\mathbf{x}_t;\mathbf{z}\bigr)}_{\mathcal{L}_{\mathrm{traj}}(\mathbf{z})}\Biggr] + D_{\mathrm{KL}}\bigl(q_\phi\,\|\,\pi\bigr) \;\geq\; -\log p_\theta\bigl(\mathbf{y}_{\mathcal{M}_t}\mid\mathbf{x}_t\bigr)</code></div>
+              <div class="eq__math" data-tex data-display
+                   data-tex-mid="\begin{aligned} J(\theta,\phi;\mathbf{x}_t,\mathbf{y}) &amp;:= \mathbb{E}_{\mathbf{z}\sim q_\phi}\Biggl[\underbrace{-\sum_{i\in\mathcal{M}_t}\log p_{\theta,i}^{(z_i)}\bigl(y_i\mid\mathbf{x}_t;\mathbf{z}\bigr)}_{\mathcal{L}_{\mathrm{traj}}(\mathbf{z})}\Biggr] + D_{\mathrm{KL}}\bigl(q_\phi\,\|\,\pi\bigr) \\ &amp;\;\geq\; -\log p_\theta\bigl(\mathbf{y}_{\mathcal{M}_t}\mid\mathbf{x}_t\bigr) \end{aligned}"
+                   data-tex-narrow="\begin{aligned} &amp;J(\theta,\phi;\mathbf{x}_t,\mathbf{y}) \\ &amp;\quad := \mathbb{E}_{\mathbf{z}\sim q_\phi}\Biggl[\underbrace{-\sum_{i\in\mathcal{M}_t}\log p_{\theta,i}^{(z_i)}\bigl(y_i\mid\mathbf{x}_t;\mathbf{z}\bigr)}_{\mathcal{L}_{\mathrm{traj}}(\mathbf{z})}\Biggr] \\ &amp;\quad\phantom{:=}\; {}+ D_{\mathrm{KL}}\bigl(q_\phi\,\|\,\pi\bigr) \\ &amp;\quad \geq -\log p_\theta\bigl(\mathbf{y}_{\mathcal{M}_t}\mid\mathbf{x}_t\bigr) \end{aligned}"><code>J(\theta,\phi;\mathbf{x}_t,\mathbf{y}) := \mathbb{E}_{\mathbf{z}\sim q_\phi}\Biggl[\underbrace{-\sum_{i\in\mathcal{M}_t}\log p_{\theta,i}^{(z_i)}\bigl(y_i\mid\mathbf{x}_t;\mathbf{z}\bigr)}_{\mathcal{L}_{\mathrm{traj}}(\mathbf{z})}\Biggr] + D_{\mathrm{KL}}\bigl(q_\phi\,\|\,\pi\bigr) \;\geq\; -\log p_\theta\bigl(\mathbf{y}_{\mathcal{M}_t}\mid\mathbf{x}_t\bigr)</code></div>
             </div>
             <div class="eq">
               <div class="eq__label"><b>Eq. 6</b> Training objective</div>
-              <div class="eq__math" data-tex data-display><code>\mathcal{L}_{\mathrm{train}}(\theta,\phi) := \mathbb{E}_{\mathbf{y}\sim p_{\mathrm{data}},\; t\sim\operatorname{Unif}[0,1],\; \mathbf{x}_t\sim q_t(\cdot\mid\mathbf{y})}\left[\frac{1}{t}\,J(\theta,\phi;\mathbf{x}_t,\mathbf{y})\right]</code></div>
+              <div class="eq__math" data-tex data-display
+                   data-tex-narrow="\begin{aligned} &amp;\mathcal{L}_{\mathrm{train}}(\theta,\phi) \\ &amp;\; := \mathbb{E}_{\substack{\mathbf{y}\sim p_{\mathrm{data}},\; t\sim\operatorname{Unif}[0,1],\\ \mathbf{x}_t\sim q_t(\cdot\mid\mathbf{y})}}\left[\frac{1}{t}\,J(\theta,\phi;\mathbf{x}_t,\mathbf{y})\right] \end{aligned}"><code>\mathcal{L}_{\mathrm{train}}(\theta,\phi) := \mathbb{E}_{\mathbf{y}\sim p_{\mathrm{data}},\; t\sim\operatorname{Unif}[0,1],\; \mathbf{x}_t\sim q_t(\cdot\mid\mathbf{y})}\left[\frac{1}{t}\,J(\theta,\phi;\mathbf{x}_t,\mathbf{y})\right]</code></div>
             </div>
             <div class="eq">
-              <div class="eq__label"><b>Eq. 7</b> Single-trajectory surrogate, unbiased for Eq. 6 (Prop. 1)</div>
-              <div class="eq__math" data-tex data-display><code>\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z}) = \frac{1}{t}\Biggl\{\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \operatorname{sg}\!\left[\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \log\frac{q_\phi(\mathbf{z})}{\pi(\mathbf{z})}\right]\log q_\phi(\mathbf{z})\Biggr\},
-\qquad
-\mathbb{E}_{\mathbf{y},t,\mathbf{x}_t,\mathbf{z}}\!\left[\nabla_{\theta,\phi}\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z})\right] = \nabla_{\theta,\phi}\mathcal{L}_{\mathrm{train}}(\theta,\phi)</code></div>
+              <div class="eq__label"><b>Eq. 7</b> Single-trajectory surrogate</div>
+              <div class="eq__math" data-tex data-display
+                   data-tex-narrow="\begin{aligned} &amp;\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z}) = \frac{1}{t}\Biggl\{\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) \\ &amp;\; {}+ \operatorname{sg}\!\left[\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \log\frac{q_\phi(\mathbf{z})}{\pi(\mathbf{z})}\right]\log q_\phi(\mathbf{z})\Biggr\} \end{aligned}"><code>\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z}) = \frac{1}{t}\Biggl\{\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \operatorname{sg}\!\left[\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \log\frac{q_\phi(\mathbf{z})}{\pi(\mathbf{z})}\right]\log q_\phi(\mathbf{z})\Biggr\}</code></div>
+            </div>
+            <div class="eq">
+              <div class="eq__label"><b>Eq. 8</b> Prop. 1: unbiased gradients of Eq. 6</div>
+              <div class="eq__math" data-tex data-display
+                   data-tex-narrow="\begin{aligned} &amp;\mathbb{E}_{\mathbf{y},t,\mathbf{x}_t,\mathbf{z}}\!\left[\nabla_{\theta,\phi}\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z})\right] \\ &amp;\quad = \nabla_{\theta,\phi}\mathcal{L}_{\mathrm{train}}(\theta,\phi) \end{aligned}"><code>\mathbb{E}_{\mathbf{y},t,\mathbf{x}_t,\mathbf{z}}\!\left[\nabla_{\theta,\phi}\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z})\right] = \nabla_{\theta,\phi}\mathcal{L}_{\mathrm{train}}(\theta,\phi)</code></div>
             </div>
             <p class="eq-legend"><span data-tex><code>\mathbf{x}_t</code></span> corrupted input &middot; <span data-tex><code>\mathbf{y}</code></span> clean sequence &middot; <span data-tex><code>\mathcal{M}_t</code></span> masked positions &middot; <span data-tex><code>q_\phi</code></span> schedule distribution parameterized by the exit gate &middot; <span data-tex><code>\pi</code></span> truncated-geometric prior (<span data-tex><code>c = 0.4</code></span>) &middot; <span data-tex><code>q_t</code></span> forward masking process &middot; <span data-tex><code>\operatorname{sg}</code></span> stop-gradient.</p>
           </div>
@@ -395,12 +403,12 @@
             <article class="card explainer">
               <span class="explainer__tag" aria-hidden="true">b</span>
               <h4 class="card__title--sm">One rollout, unbiased for the objective</h4>
-              <p>A schedule is sampled pass by pass during a single recurrent rollout. The denoiser is trained by ordinary backpropagation; the exit gate gets a score-function term whose detached, sequence-level cost credits each halting decision for its effect on the whole sequence. By Prop.&nbsp;1 this gives unbiased gradients of the objective above; the practical recipe relaxes the KL term to keep token-wise adaptivity, so the guarantee concerns the original objective.</p>
+              <p>A schedule is sampled pass by pass during a single recurrent rollout. The denoiser is trained by ordinary backpropagation; the exit gate gets a score-function term whose detached, sequence-level cost credits each halting decision for its effect on the whole sequence. By Prop.&nbsp;1 this gives unbiased gradients of the objective above. The practical recipe relaxes the KL term to keep token-wise adaptivity, reweights the denoiser loss across passes and adds an auxiliary next-token loss, so the guarantee concerns the original objective.</p>
             </article>
             <article class="card explainer">
               <span class="explainer__tag" aria-hidden="true">c</span>
               <h4 class="card__title--sm">Lower variance, no extra passes</h4>
-              <p>One rollout already yields a readout at every pass, so each token is also supervised at earlier passes, weighted by its detached exit-depth probabilities; the gate&rsquo;s cost subtracts the first-pass prediction cost as a control variate. Removing intermediate supervision raises conditional gradient variance to 1.76&times;, 1.49&times; and 1.42&times; at training steps 1k, 6.5k and 17k.</p>
+              <p>One rollout already yields a readout at every pass, so each token is also supervised at earlier passes, weighted by its detached exit-depth probabilities; the gate&rsquo;s cost subtracts the first-pass prediction cost as a control variate. On a measured subset of 4,096 denoiser normalization parameters, removing intermediate supervision raises conditional gradient variance to 1.76&times;, 1.49&times; and 1.42&times; the full-method value at training steps 1k, 6.5k and 17k.</p>
             </article>
           </div>
         </div>
@@ -430,7 +438,7 @@
           </div>
           <ul class="kpis" aria-label="Key efficiency numbers">
             <li class="kpi"><span class="kpi__value">+8.5% throughput</span><span class="kpi__label">at a matched 93.25% GSM8K accuracy: <strong>612.4 vs 564.2 tok/s</strong> against WeDLM-8B</span></li>
-            <li class="kpi"><span class="kpi__value">13.6% less compute</span><span class="kpi__label">at the same accuracy: <strong>133.5 vs 154.6 GFLOPs</strong> per generated token against WeDLM-8B</span></li>
+            <li class="kpi"><span class="kpi__value">13.6% less compute</span><span class="kpi__label">at the same accuracy: <strong>133.5 vs 154.6</strong> estimated GFLOPs per generated token against WeDLM-8B</span></li>
             <li class="kpi"><span class="kpi__value"><var>&tau;</var>: 0.1 &rarr; 0.6</span><span class="kpi__label">at <var>q</var>&nbsp;=&nbsp;0.5: <strong>278.7 &rarr; 508.3 tok/s</strong>, accuracy 93.8% &rarr; 92.3% (89.9% at <var>&tau;</var>&nbsp;=&nbsp;0.9)</span></li>
             <li class="kpi"><span class="kpi__value"><var>q</var>: 0.1 &rarr; 0.9</span><span class="kpi__label">at <var>&tau;</var>&nbsp;=&nbsp;0.2: accuracy <strong>93.3% &rarr; 93.8%</strong>, 455.3 &rarr; 309.0 tok/s</span></li>
           </ul>
@@ -454,7 +462,7 @@
       <div class="container container--full">
         <div class="section__head">
           <h2 id="analysis-title" data-anchor="analysis">Analysis</h2>
-          <p class="section__lead is-long">What the recurrent depth learns, and how it can be used at test time. Deeper recurrent readouts reach lower training loss, the exit threshold <var>q</var> acts as a test-time scaling knob, and the model learns to prefer more refinement for number tokens without any difficulty labels.</p>
+          <p class="section__lead is-long">What the recurrent depth learns, and how it can be used at test time. After the initial training phase, deeper recurrent readouts reach lower training loss on their active tokens, the exit threshold <var>q</var> acts as a test-time scaling knob, and the model learns to prefer more refinement for number tokens without any difficulty labels.</p>
         </div>
 
         <figure class="fig fig--wide" id="fig-4">
@@ -488,14 +496,14 @@
             </div>
             <div class="fig__media">
               <img src="static/images/ablations.svg" width="699" height="156" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
-                   alt="Ablations: maximum recurrent depth K = 4 matches or beats K = 8 and beats K = 2; middle-layer recurrence beats last-layer recurrence; removing intermediate supervision raises gradient variance 1.42–1.76×.">
+                   alt="Ablations: maximum recurrent depth K = 4 matches or beats K = 8 and beats K = 2; middle-layer recurrence beats last-layer recurrence; removing intermediate supervision raises conditional gradient variance 1.42–1.76× (measured parameter subset).">
             </div>
             <figcaption class="fig__caption"><strong>Left:</strong> At 8B, <em>K</em> = 4 outperforms <em>K</em> = 8 early in training and achieves comparable performance later, while <em>K</em> = 2 plateaus at a lower score. The inset enlarges steps 10,000&ndash;17,000. <strong>Middle:</strong> Middle-layer recurrence outperforms last-layer recurrence later in training. The full-stack curve is a historical reference evaluated on a different benchmark subset. <strong>Right:</strong> Intermediate supervision reduces conditional gradient variance in ALoDLM-8B. Variance across sampled exit trajectories is normalized to the value with intermediate supervision at each checkpoint. Error bars show paired 95% bootstrap confidence intervals across eight fixed input packs.</figcaption>
           </figure>
           <ul class="takeaways">
-            <li class="takeaway"><strong>Maximum recurrent depth <var>K</var>.</strong> <var>K</var>&nbsp;=&nbsp;4 learns faster than <var>K</var>&nbsp;=&nbsp;8 early on and matches it later with half the maximum depth; <var>K</var>&nbsp;=&nbsp;2 plateaus lower.</li>
-            <li class="takeaway"><strong>Loop placement.</strong> Looping the middle layers [10, 26) beats looping the last layers [20, 36) later in training, with the same 16-layer core. The full-stack curve was evaluated on a different benchmark subset.</li>
-            <li class="takeaway"><strong>Intermediate supervision.</strong> Without it, conditional gradient variance rises to 1.76&times;, 1.49&times; and 1.42&times; of the full method at steps 1k, 6.5k and 17k, with no extra recurrent passes.</li>
+            <li class="takeaway"><strong>Maximum recurrent depth <var>K</var>.</strong> <var>K</var>&nbsp;=&nbsp;4 learns faster than <var>K</var>&nbsp;=&nbsp;8 early on and matches it later with half the maximum recurrent depth; <var>K</var>&nbsp;=&nbsp;2 plateaus lower.</li>
+            <li class="takeaway"><strong>Loop placement.</strong> Looping the middle layers [10, 26) beats looping the last layers [20, 36) later in training, although both cores have 16 layers. The full-stack curve was evaluated on a different benchmark subset.</li>
+            <li class="takeaway"><strong>Intermediate supervision.</strong> On a measured subset of 4,096 denoiser normalization parameters, removing it raises conditional gradient variance to 1.76&times;, 1.49&times; and 1.42&times; the full-method value at steps 1k, 6.5k and 17k. The supervision itself needs no extra recurrent passes.</li>
           </ul>
         </div>
       </div>
@@ -517,7 +525,7 @@
               <span class="copy-btn__label">Copy</span>
             </button>
           </div>
-          <pre class="code-card__pre" tabindex="0" aria-label="BibTeX entry"><code id="bibtex-code">@inproceedings{anonymous2026alodlm,
+          <pre class="code-card__pre" tabindex="0" role="region" aria-label="BibTeX entry"><code id="bibtex-code">@inproceedings{anonymous2026alodlm,
   title     = {{ALoDLM}: Adaptively Looped Diffusion Language Models},
   author    = {Anonymous},
   booktitle = {Submitted to The Fifteenth International Conference on Learning Representations},

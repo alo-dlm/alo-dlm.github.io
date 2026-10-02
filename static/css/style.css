@@ -1,7 +1,7 @@
 /* ==========================================================================
    ALoDLM project page: design system (style.css)
-   Owner: site architect. Widget authors must not edit this file; put widget
-   styles in your own static/css/<widget>.css (loaded after this file).
+   Shared tokens, layout and components. Widget-specific styles live in
+   static/css/<widget>.css, loaded after this file.
 
    Contents
      1. Tokens (light) + dark theme (prefers-color-scheme and [data-theme])
@@ -158,7 +158,7 @@
 @media (min-width: 1024px) {
   :root { --gutter: 32px; }
 }
-@media (max-width: 959.98px) {
+@media (max-width: 759.98px) {
   :root { --scroll-offset: 118px; }
 }
 
@@ -356,7 +356,7 @@ em, i { font-style: italic; }
 sup, sub { line-height: 0; }
 code, kbd, samp, pre { font-family: var(--font-mono); }
 small { font-size: var(--fs-sm); }
-var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
+var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; line-height: 1; }   /* never taller than the line */
 
 .eyebrow {
   display: inline-block;
@@ -515,10 +515,12 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 .theme-toggle[aria-pressed="true"] .i-sun { display: block; }
 .theme-toggle[aria-pressed="true"] .i-moon { display: none; }
 
-@media (max-width: 959.98px) {
+@media (max-width: 759.98px) {
   .nav__inner { flex-wrap: wrap; row-gap: 0; padding-top: 6px; }
   .theme-toggle { margin-left: auto; }
   .nav__links {
+    --fade-l: var(--gutter);
+    --fade-r: 28px;
     order: 3;
     flex: 1 0 100%;
     gap: 6px;
@@ -527,9 +529,13 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - 28px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent 100%);
   }
+  /* site.js marks the scroll position: equal fades on both sides while chips
+     are hidden there, none at an end that is fully shown */
+  .nav__links.is-scrolled { --fade-l: 28px; }
+  .nav__links.is-end { --fade-r: var(--gutter); }
   .nav__links::-webkit-scrollbar { display: none; }
   .nav__links a {
     min-height: 36px;
@@ -602,7 +608,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 .hero {
   position: relative;
   isolation: isolate;
-  padding: clamp(24px, 3.4vw, 34px) 0 clamp(20px, 2.2vw, 26px);
+  padding: clamp(20px, 2.6vw, 28px) 0 clamp(14px, 1.6vw, 18px);
   text-align: center;
 }
 .hero::before {
@@ -629,9 +635,14 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   text-transform: uppercase;
 }
 .pill__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.pill__short { display: none; }
+@media (max-width: 399.98px) {
+  .pill__long { display: none; }
+  .pill__short { display: inline; }
+}
 .hero__title {
   max-width: 21em;
-  margin: 14px auto 0;
+  margin: 12px auto 0;
   font-size: var(--fs-h1);
   line-height: 1.12;
   letter-spacing: -.022em;
@@ -647,7 +658,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   }
 }
 .hero__byline {
-  margin-top: 10px;
+  margin-top: 8px;
   color: var(--text-3);
   font: 500 1.125rem/1.4 var(--font-body);
 }
@@ -656,11 +667,19 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 16px;
+}
+/* Narrow screens: two even rows of two buttons instead of ragged wrapping */
+@media (max-width: 687.98px) {
+  .hero__actions { display: grid; grid-template-columns: repeat(2, max-content); justify-content: center; }
+}
+@media (max-width: 399.98px) {
+  .hero__actions { gap: 8px; }
+  .hero__actions .btn { gap: 6px; padding: 0 14px; }
 }
 .hero__tldr {
   max-width: 56rem;
-  margin: 18px auto 0;
+  margin: 14px auto 0;
   color: var(--text-2);
   font-size: var(--fs-md);
   line-height: 1.6;
@@ -683,7 +702,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   max-width: var(--w-wide);
-  margin: 20px auto 0;
+  margin: 16px auto 0;
   padding: 0;
   list-style: none;
 }
@@ -693,9 +712,9 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 .stat {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   height: 100%;
-  padding: 13px 16px 14px;
+  padding: 11px 16px 12px;
   border: 1px solid var(--border);
   border-radius: var(--r-card);
   background: var(--surface);
@@ -711,7 +730,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   font: 700 clamp(1.625rem, 1.3rem + 1vw, 2rem)/1 var(--font-display);
   letter-spacing: -.02em;
 }
-.stat__label { color: var(--text-3); font-size: .8125rem; line-height: 1.45; }
+.stat__label { color: var(--text-3); font-size: .8125rem; line-height: 1.45; text-wrap: pretty; }
 .stat__label strong { color: var(--text-2); font-weight: 600; }
 
 @media (max-width: 559.98px) {
@@ -857,7 +876,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   margin: 1.25rem 0 0;
   padding: 16px 20px;
   border-left: 3px solid var(--brand);
-  border-radius: 0 var(--r-btn) var(--r-btn) 0;
+  border-radius: 0 var(--r-card) var(--r-card) 0;
   background: var(--brand-soft);
   color: var(--text-2);
 }
@@ -906,6 +925,10 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
     column-gap: 48px;
     align-items: start;
   }
+}
+/* Stick only when the whole widget (about 700 px) fits under the nav, so its
+   controls never stay below the fold on short laptop screens. */
+@media (min-width: 1200px) and (min-height: 800px) {
   .part01__widget { position: sticky; top: calc(var(--nav-h) + 20px); }
 }
 .part-intro { color: var(--text-2); }
@@ -1081,6 +1104,11 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 }
 .eq__math .katex-display { margin: .5em 0 .25em; }
 .eq__math .katex { font-size: 1.14em; }
+/* site.js shows the widest form of an equation that fits (data-tex-mid /
+   data-tex-narrow hold line-broken forms); when even the narrowest does not
+   fit, it sets .is-tight and the maths drops to body size. */
+.eq__math.is-tight .katex { font-size: 1em; }
+.algo-eqs .eq__math.is-tight .katex { font-size: .96em; }
 .eq-legend {
   margin-top: 6px;
   padding-top: 14px;
@@ -1089,7 +1117,9 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   font-size: var(--fs-sm);
   line-height: 1.75;
 }
-.eq-legend .katex { font-size: 1em; }
+.eq-legend .katex { font-size: 1.23em; }   /* keeps subscripts at the 12 px floor */
+.algo .note { font-size: var(--fs-sm); }
+.algo .note .katex { font-size: 1.23em; }
 [data-tex] > code {
   font-size: .8125rem;
   white-space: pre-wrap;
@@ -1145,7 +1175,7 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
   font: 700 1.5rem/1.15 var(--font-display);
   letter-spacing: -.01em;
 }
-.kpi__label { display: block; margin-top: 6px; color: var(--text-3); font-size: var(--fs-sm); line-height: 1.5; }
+.kpi__label { display: block; margin-top: 6px; color: var(--text-3); font-size: var(--fs-sm); line-height: 1.5; text-wrap: pretty; }
 .kpi__label strong { color: var(--text-2); }
 
 .takeaways {
@@ -1372,9 +1402,23 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
 [data-tip-pos="bottom"]::after { top: calc(100% + 8px); bottom: auto; transform: translate(-50%, -4px); }
 [data-tip-pos="left"]::after { left: auto; right: 0; transform: translate(0, 4px); }
 [data-tip-pos="bottom-end"]::after { top: calc(100% + 8px); bottom: auto; left: auto; right: 0; transform: translate(0, -4px); }
-[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
-[data-tip-pos="left"]:hover::after, [data-tip-pos="left"]:focus-visible::after,
-[data-tip-pos="bottom-end"]:hover::after, [data-tip-pos="bottom-end"]:focus-visible::after { transform: translate(0, 0); }
+[data-tip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+[data-tip-pos="left"]:focus-visible::after,
+[data-tip-pos="bottom-end"]:focus-visible::after { transform: translate(0, 0); }
+/* Hover only where a real hover exists, so a tap never leaves a tooltip on
+   screen. A shown tooltip can itself be hovered: a transparent bridge spans
+   the gap to it. */
+@media (hover: hover) {
+  [data-tip]:hover::after { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  [data-tip-pos="left"]:hover::after,
+  [data-tip-pos="bottom-end"]:hover::after { transform: translate(0, 0); }
+  [data-tip]:hover::before { content: ""; position: absolute; z-index: 60; left: 0; right: 0; bottom: 100%; height: 10px; }
+  [data-tip-pos="bottom"]:hover::before,
+  [data-tip-pos="bottom-end"]:hover::before { top: 100%; bottom: auto; }
+}
+/* Escape hides a shown tooltip until hover and focus have left (site.js) */
+[data-tip][data-tip-off]::after { opacity: 0 !important; visibility: hidden; pointer-events: none !important; }
+[data-tip][data-tip-off]::before { content: none; }
 
 .tooltip {
   position: absolute;
@@ -1486,19 +1530,19 @@ var { font-family: var(--font-math); font-style: italic; font-size: 1.06em; }
    on DOMContentLoaded), reserve about the mounted height so the page does not jump when the
    widgets mount. A fallback still showing after that (a widget failed) keeps the compact size. */
 html.js:not(.is-ready) .widget-fallback { visibility: hidden; }   /* loading: a quiet skeleton */
-html.js:not(.is-ready) #demo { --mount-min-h: 1000px; }
-html.js:not(.is-ready) #loop-stepper { --mount-min-h: 985px; }
+html.js:not(.is-ready) #demo { --mount-min-h: 1050px; }
+html.js:not(.is-ready) #loop-stepper { --mount-min-h: 1020px; }
 html.js:not(.is-ready) #results-table { --mount-min-h: 1180px; }
-html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1230px; }
+html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1245px; }
 @media (min-width: 560px) {
-  html.js:not(.is-ready) #demo { --mount-min-h: 900px; }
-  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 860px; }
+  html.js:not(.is-ready) #demo { --mount-min-h: 920px; }
+  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 900px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 1060px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1040px; }
 }
 @media (min-width: 768px) {
   html.js:not(.is-ready) #demo { --mount-min-h: 800px; }
-  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 670px; }
+  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 690px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 960px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 580px; }
 }
@@ -1506,8 +1550,8 @@ html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1230px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 530px; }
 }
 @media (min-width: 1200px) {
-  html.js:not(.is-ready) #demo { --mount-min-h: 766px; }
-  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 693px; }
+  html.js:not(.is-ready) #demo { --mount-min-h: 786px; }
+  html.js:not(.is-ready) #loop-stepper { --mount-min-h: 710px; }
   html.js:not(.is-ready) #results-table { --mount-min-h: 948px; }
   html.js:not(.is-ready) #analysis-charts { --mount-min-h: 500px; }
 }
@@ -1589,12 +1633,18 @@ html.js:not(.is-ready) #analysis-charts { --mount-min-h: 1230px; }
   font-size: var(--fs-sm);
   line-height: 1.55;
 }
+.lightbox__caption:focus-visible { outline-offset: -3px; }   /* focusable only while it scrolls (site.js) */
 .lightbox__caption strong { color: var(--text); }
 .lightbox__caption .fig__label { display: none; }
+/* No zoom available at this size: no zoom hint, no zoom cursor */
+.lightbox.no-zoom .lightbox__hint { display: none; }
+.lightbox.no-zoom .lightbox__img { cursor: default; }
 @media (max-width: 639.98px) {
   .lightbox { width: 100vw; height: 100vh; border: 0; border-radius: 0; }
   @supports (height: 100dvh) { .lightbox { height: 100dvh; } }
-  .lightbox__hint { display: none; }
+  .lightbox__bar { flex-wrap: wrap; row-gap: 0; }
+  .lightbox__title { flex-basis: 0; }   /* title shares the first row with the buttons */
+  .lightbox__hint { order: 5; flex: 1 0 100%; white-space: normal; }   /* own row under the title */
   .lightbox__caption { max-height: 30vh; }
 }
 

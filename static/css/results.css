@@ -156,6 +156,11 @@
   display: inline-block;
 }
 .rt-grp.rt-stick-r .rt-grp__label { position: static; }
+.rt-grp__abbr { display: none; }
+@media (max-width: 559.98px) {
+  .rt-grp__full { display: none; }
+  .rt-grp__abbr { display: inline; }
+}
 .rt-grp--ar { --rt-tint: var(--ar-bg); --rt-accent: var(--ar); color: var(--ar); }
 .rt-grp--dlm { --rt-tint: var(--dlm-bg); --rt-accent: var(--dlm); color: var(--dlm); }
 .rt-grp--ours { --rt-tint: var(--ours-bg); --rt-accent: var(--ours); color: var(--ours); }
@@ -254,8 +259,8 @@
 .rt-stick-r { position: sticky; right: 0; z-index: 2; }
 .rt-corner { z-index: 3; }
 .rt-scroll.is-scrolled .rt-stick-l { box-shadow: inset -1px 0 0 var(--border-strong), 12px 0 12px -10px var(--scroll-shadow); }
-.rt-scroll.has-more .rt-stick-r { box-shadow: inset 1px 0 0 var(--border-strong), -12px 0 12px -10px var(--scroll-shadow); }
-.rt-scroll.has-more .rt-grp.rt-stick-r { box-shadow: inset 0 3px 0 var(--rt-accent), inset 1px 0 0 var(--border-strong), -12px 0 12px -10px var(--scroll-shadow); }
+.rt-scroll.has-more .rt-stick-r { box-shadow: inset 1px 0 0 var(--border-strong), -14px 0 14px -8px var(--scroll-shadow); }
+.rt-scroll.has-more .rt-grp.rt-stick-r { box-shadow: inset 0 3px 0 var(--rt-accent), inset 1px 0 0 var(--border-strong), -14px 0 14px -8px var(--scroll-shadow); }
 
 /* --------------------------------------------------------------------------
    Table 1: legend, caption, notes
@@ -324,7 +329,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-card);
-  box-shadow: var(--sh-sm);
+  box-shadow: var(--sh-md);
 }
 .ac-head { padding: 16px 18px 0; }
 .ac-label {

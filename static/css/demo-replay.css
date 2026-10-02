@@ -1,6 +1,6 @@
 /* ==========================================================================
    demo-replay.css: the hero "decoding replay" (static/js/demo-replay.js).
-   Owner: demo-replay widget. Mount: #demo (data-widget="demo-replay").
+   Mount: #demo (data-widget="demo-replay").
    The window is always dark (.term); the caption below it follows the page
    theme. Pass colours come only from the shared ramp: [data-pass] inside
    .term maps to the fixed terminal ramp --t1..--t4 (style.css, section 5n).
@@ -215,7 +215,7 @@
   pointer-events: none;
 }
 .dr-badge__ico { width: 14px; height: 14px; flex: none; }
-.dr-badge__speed { color: inherit; font-weight: 700; }   /* global strong is themed; the bar is not */
+.dr-badge .dr-badge__speed { color: inherit; font-weight: 700; }   /* beats `.term strong`: the badge sits on the light bar */
 .dr-badge__sep { margin-right: 8px; opacity: .6; }
 .dr[data-alo="done"] .dr-badge { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
 
@@ -273,12 +273,15 @@
   position: relative;
   height: clamp(240px, 38vh, 420px);
   margin: 0 18px 12px;
-  padding: 2px 6px 2px 14px;
+  padding: 10px 6px 2px 14px;
   overflow-x: hidden;
   overflow-y: auto;
   border-left: 2px solid #1e293b;
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
+  /* lines scrolling out at the top fade instead of being cut mid-glyph */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 10px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 10px);
 }
 .dr-pane--alo .dr-scroll { border-left-color: rgba(96, 165, 250, .34); }
 .dr-scroll:focus-visible { outline-offset: 3px; }
