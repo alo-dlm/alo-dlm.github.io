@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALoDLM: Adaptively Looped Diffusion Language Models</title>
+  <meta name="description" content="ALoDLM: diffusion language models with token-adaptive latent recurrence. Within each denoising step, confident tokens commit early as discrete context while unresolved tokens keep refining their latent states.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='6' x2='28' y2='26' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%231d4ed8'/%3E%3Cstop offset='1' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66' fill='none' stroke='url(%23g)' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M23.1 6.6 17 9.9 18.3 2.1z' fill='url(%23g)' stroke='url(%23g)' stroke-width='1.4' stroke-linejoin='round'/%3E%3Crect x='12.4' y='12.4' width='7.2' height='7.2' rx='1.8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <script>
+    /* Theme bootstrap: apply a stored manual choice before first paint. */
+    (function () {
+      var d = document.documentElement;
+      d.className += ' js';
+      /* All deferred scripts have run by DOMContentLoaded; after that, a widget
+         fallback that is still showing (the widget failed) drops its reserved
+         height and shows its text. */
+      document.addEventListener('DOMContentLoaded', function () { d.className += ' is-ready'; });
+      try {
+        var t = window.localStorage.getItem('alodlm-theme');
+        if (t === 'light' || t === 'dark') { d.setAttribute('data-theme', t); }
+      } catch (e) { /* storage unavailable: follow the system theme */ }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&amp;family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js"></script>
+  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="static/css/demo-replay.css">
+  <link rel="stylesheet" href="static/css/loop-stepper.css">
+  <link rel="stylesheet" href="static/css/results.css">
+</head>
+<body>
+  <!-- Icon sprite: use as <svg class="icon"><use href="#i-name"/></svg> -->
+  <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+    <symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></g></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4.5l-3 15"/></g></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 3.8 7.4v9.2l8.2 4.6 8.2-4.6V7.4z"/><path d="M3.8 7.4 12 12l8.2-4.6M12 12v9.2"/></g></symbol>
+    <symbol id="i-braces" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H7a2 2 0 0 0-2 2v3.8a2.2 2.2 0 0 1-2 2.2 2.2 2.2 0 0 1 2 2.2v3.8a2 2 0 0 0 2 2h1M16 3.5h1a2 2 0 0 1 2 2v3.8a2.2 2.2 0 0 0 2 2.2 2.2 2.2 0 0 0-2 2.2v3.8a2 2 0 0 1-2 2h-1"/></g></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.6A8.5 8.5 0 1 1 9.4 3.6a6.8 6.8 0 0 0 11 11z"/></g></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15h-.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.5 5 5L19.5 7"/></g></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></g></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></g></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.4 2.6 2.6 5-5.4"/></g></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></g></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></g></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66L20.4 8.2"/><path d="M20.4 3.6v4.6h-4.6"/><rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1.2"/></g></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></g></symbol>
+    <symbol id="i-bars" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5h17"/><rect x="5" y="12" width="3.4" height="5.5" rx="1"/><rect x="10.3" y="8" width="3.4" height="9.5" rx="1"/><rect x="15.6" y="4" width="3.4" height="13.5" rx="1"/></g></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2.5 4.5 13.5h6.5l-1 8 8.5-11H12z"/></g></symbol>
+    <symbol id="i-zoom-in" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/></g></symbol>
+    <symbol id="i-zoom-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/></g></symbol>
+    <symbol id="i-algo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M7 12h7M7 18h9M4 12v6"/><path d="m17 4.5 3 3-3 3"/></g></symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <nav class="container container--full nav__inner" aria-label="Primary">
+      <a class="brand" href="#top" aria-label="ALoDLM, back to top">
+        <svg class="brand__glyph" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="g-brand-nav" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
+              <stop offset="0" class="gs-a"/><stop offset="1" class="gs-b"/>
+            </linearGradient>
+          </defs>
+          <path d="M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66" fill="none" stroke="url(#g-brand-nav)" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M23.1 6.6 17 9.9 18.3 2.1z" fill="url(#g-brand-nav)" stroke="url(#g-brand-nav)" stroke-width="1.2" stroke-linejoin="round"/>
+          <rect x="12.6" y="12.6" width="6.8" height="6.8" rx="1.8" fill="url(#g-brand-nav)"/>
+        </svg>
+        <span class="brand__word">ALoDLM</span>
+      </a>
+      <ul class="nav__links">
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#analysis">Analysis</a></li>
+        <li><a href="#bibtex">BibTeX</a></li>
+      </ul>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Dark theme" data-tip="Switch to dark theme" data-tip-pos="bottom-end">
+        <svg class="i-moon" aria-hidden="true" focusable="false"><use href="#i-moon"/></svg>
+        <svg class="i-sun" aria-hidden="true" focusable="false"><use href="#i-sun"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ===================================================== Hero -->
+    <section id="top" class="hero" data-spy="">
+      <div class="container">
+        <p class="pill"><span class="pill__dot" aria-hidden="true"></span>Under review as a conference paper at ICLR 2027</p>
+        <h1 class="hero__title"><span class="grad">ALoDLM</span>: Adaptively Looped Diffusion Language Models</h1>
+        <p class="hero__byline">Anonymous Authors</p>
+        <div class="hero__actions">
+          <button type="button" class="btn" aria-disabled="true" aria-label="Paper (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-doc"/></svg>Paper<span class="btn__tag" aria-hidden="true">soon</span>
+          </button>
+          <button type="button" class="btn" aria-disabled="true" aria-label="Code (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-code"/></svg>Code<span class="btn__tag" aria-hidden="true">soon</span>
+          </button>
+          <button type="button" class="btn" aria-disabled="true" aria-label="Models (coming soon)" data-tip="Coming soon">
+            <svg aria-hidden="true" focusable="false"><use href="#i-cube"/></svg>Models<span class="btn__tag" aria-hidden="true">soon</span>
+          </button>
+          <a class="btn btn--primary" href="#bibtex">
+            <svg aria-hidden="true" focusable="false"><use href="#i-braces"/></svg>BibTeX
+          </a>
+        </div>
+        <p class="hero__tldr"><span class="tldr-label">TL;DR</span>ALoDLM replaces the uniform per-step computation of diffusion language models with token-adaptive latent recurrence: within each denoising step, confident tokens commit early as discrete context, while unresolved tokens keep refining their latent states through additional recurrent passes.</p>
+        <ul class="stats" aria-label="Headline results">
+          <li><a class="stat" href="#results"><span class="stat__value">80.3</span><span class="stat__label">average over 11 benchmarks, <span class="nowrap">ALoDLM-8B</span> <strong class="nowrap">(Qwen3-8B: 78.5)</strong></span></a></li>
+          <li><a class="stat" href="#results"><span class="stat__value">65.5</span><span class="stat__label">average over 11 benchmarks, <span class="nowrap">ALoDLM-1.7B</span> <strong class="nowrap">(Qwen3-1.7B: 63.8)</strong></span></a></li>
+          <li><a class="stat" href="#performance"><span class="stat__value">&asymp;2.7&times;</span><span class="stat__label">GSM8K throughput vs <span class="nowrap">vLLM-served</span> <span class="nowrap">Qwen3-8B</span>, at <strong>comparable or higher accuracy</strong></span></a></li>
+          <li><a class="stat" href="#results"><span class="stat__value">+5.2</span><span class="stat__label">average points over <span class="nowrap">WeDLM-8B</span>, <strong>ahead on 10 of 11</strong> benchmarks</span></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================================================== Demo (widget) -->
+    <section class="demo-band" aria-label="Decoding replay" data-spy="demo">
+      <div class="container">
+        <div id="demo" class="widget-mount" data-widget="demo-replay">
+          <div class="widget-fallback">
+            <strong>Decoding replay</strong>
+            An illustrative side-by-side replay of one ALoDLM-8B response to a GSM8K question, paced from measured single-stream GSM8K throughput (229.3 tok/s for vLLM-served Qwen3-8B, 612.4 tok/s for ALoDLM-8B). It needs JavaScript.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Abstract -->
+    <section id="abstract" class="section" data-spy="abstract" aria-labelledby="abstract-title">
+      <div class="container">
+        <div class="section__head">
+          <h2 id="abstract-title" data-anchor="abstract">Abstract</h2>
+        </div>
+        <div class="prose abstract">
+          <p>Diffusion language models (DLMs) enable fast generation by predicting multiple tokens in parallel, yet their practical adoption remains hindered by a persistent quality gap relative to comparably sized autoregressive models. We attribute this gap to a <em>computation&ndash;difficulty mismatch</em>: within a partially observed sequence, some unknown tokens are readily predictable, while others require substantially more computation to resolve. Existing DLMs, however, apply uniform computational depth to every unknown position at each denoising step. We introduce <strong>ALoDLM</strong>, which replaces this uniform computation with token-adaptive latent recurrence. At each denoising step, ALoDLM iteratively refines representations in latent space, allocating computation based on token difficulty. Tokens ready to commit are fed back as discrete context, while unresolved tokens retain and refine their latent states through additional recurrent passes. To learn both token prediction and computation allocation end-to-end, we formulate token-wise computation schedules as latent variables and derive a conditional negative evidence lower bound (NELBO). We train ALoDLM at 1.7B and 8B parameter scales. Across eleven benchmarks, ALoDLM outperforms all evaluated DLMs and the corresponding autoregressive baselines in average benchmark score at both scales.</p>
+          <p>Importantly, ALoDLM combines superior generation quality with fast parallel decoding, establishing a strong quality&ndash;efficiency trade-off among all evaluated autoregressive and diffusion models under optimized inference engines.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Contributions -->
+    <section id="contributions" class="section section--tint" data-spy="" aria-labelledby="contrib-title">
+      <div class="container">
+        <div class="section__head">
+          <h2 id="contrib-title" data-anchor="contributions">Key contributions</h2>
+        </div>
+        <ul class="contrib-grid">
+          <li class="contrib">
+            <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-loop"/></svg></span>
+            <h3 class="contrib__title">Token-adaptive looped architecture</h3>
+            <p class="contrib__body">A looped architecture with dynamic recurrent depth: inside every denoising step, a shared recurrent core runs up to <var>K</var> times, the maximum recurrent depth. Easy tokens commit early and act as resolved context, while difficult tokens keep refining their accumulated latent states through additional recurrent passes.</p>
+          </li>
+          <li class="contrib">
+            <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-target"/></svg></span>
+            <h3 class="contrib__title">Principled training objective</h3>
+            <p class="contrib__body">Token-wise exit schedules are treated as latent variables, and a conditional NELBO learns token prediction and computation allocation end-to-end. A single-trajectory gradient estimator is unbiased for this objective; the practical recipe relaxes its KL term and adds variance reduction to stabilize training.</p>
+          </li>
+          <li class="contrib">
+            <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-bars"/></svg></span>
+            <h3 class="contrib__title">Scaling and performance</h3>
+            <p class="contrib__body">To the best of our knowledge, ALoDLM-8B is the largest looped DLM to date. It has the best average score among all evaluated DLMs and beats its Qwen3 AR counterparts across eleven benchmarks (65.5 vs 63.8 at 1.7B, 80.3 vs 78.5 at 8B), with direct SFT on a 5B-token corpus.</p>
+          </li>
+          <li class="contrib">
+            <span class="contrib__icon" aria-hidden="true"><svg><use href="#i-bolt"/></svg></span>
+            <h3 class="contrib__title">Fast decoding and test-time scaling</h3>
+            <p class="contrib__body">On GSM8K, ALoDLM-8B delivers &asymp;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy. Recurrent depth is an effective test-time scaling axis, and the model learns token-dependent refinement without explicit difficulty labels.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================================================== Performance overview (Fig. 1) -->
+    <section id="performance" class="section" data-spy="" aria-labelledby="perf-title">
+      <div class="container">
+        <div class="section__head">
+          <h2 id="perf-title" data-anchor="performance">Performance overview</h2>
+          <p class="section__lead">ALoDLM combines strong performance with fast inference.</p>
+        </div>
+        <div class="fig-pair">
+          <figure class="fig" id="fig-1-left">
+            <div class="fig__head">
+              <span class="fig__label"><b>Figure 1</b> &middot; left</span>
+              <button type="button" class="fig__zoom" aria-label="Enlarge Figure 1, left: benchmark radar"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+            </div>
+            <div class="fig__media">
+              <img src="static/images/teaser_benchmarks.svg" width="620" height="392" decoding="async" data-zoom data-zoom-width="1300" data-zoom-min="560"
+                   alt="Radar chart of 11 benchmarks: ALoDLM-8B forms the outermost polygon on most axes versus LLaDA-8B, Dream-7B, Fast-dLLM-v2, Qwen3-8B, SDAR-8B and WeDLM-8B.">
+            </div>
+            <figcaption class="fig__caption"><strong>Holistic capability.</strong> ALoDLM-8B outperforms all baselines on average across 11 reasoning, coding, and knowledge benchmarks.</figcaption>
+          </figure>
+          <figure class="fig" id="fig-1-right">
+            <div class="fig__head">
+              <span class="fig__label"><b>Figure 1</b> &middot; right</span>
+              <button type="button" class="fig__zoom" aria-label="Enlarge Figure 1, right: accuracy versus throughput"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+            </div>
+            <div class="fig__media">
+              <img src="static/images/teaser_throughput.svg" width="633" height="477" decoding="async" data-zoom data-zoom-width="1300" data-zoom-min="560"
+                   alt="Scatter of GSM8K accuracy versus single-stream throughput on one B200: ALoDLM-8B sits at the top right (93.3% at 612 tok/s), ahead of WeDLM-8B, vLLM-served Qwen3-8B and the other diffusion LLMs.">
+            </div>
+            <figcaption class="fig__caption"><strong>Speed vs. accuracy.</strong> On GSM8K, ALoDLM-8B delivers &sim;2.7&times; the throughput of vLLM-served Qwen3-8B at comparable or higher accuracy, while outperforming the diffusion baselines shown in both accuracy and throughput. Single-stream throughput on one NVIDIA B200; every model runs on an optimized inference engine.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Method -->
+    <section id="method" class="section section--tint" data-spy="method" aria-labelledby="method-title">
+      <div class="container container--full">
+        <div class="section__head">
+          <h2 id="method-title" data-anchor="method">Method</h2>
+          <p class="section__lead is-long">ALoDLM keeps the parallel denoising of a diffusion language model and adds an inner loop to every denoising step, so that computation follows token difficulty. Part&nbsp;01 shows how one step runs at inference; Part&nbsp;02 shows how the model learns when to stop refining.</p>
+        </div>
+
+        <div class="motivation">
+          <span class="eyebrow">Motivation</span>
+          <h3>The computation&ndash;difficulty mismatch</h3>
+          <p>Within a single denoising step, masked positions can differ greatly in how hard they are to predict, because of intrinsic uncertainty, multi-hop reasoning, or dependence on other tokens that are still unresolved. Yet a standard DLM applies the same fixed-depth denoiser to every masked position, wasting computation on easy predictions and starving hard ones.</p>
+          <p>Confidence-based decoding helps only partly: it defers low-confidence predictions to later denoising steps, but a deferred token still gets the same fixed compute, and its latent computation is thrown away and recomputed from its mask embedding at the next step.</p>
+          <p class="principle"><strong>Principle.</strong> A DLM should maintain and refine persistent latent states for challenging tokens within each denoising step, so that computation scales with prediction difficulty.</p>
+        </div>
+
+        <figure class="fig fig--wide" id="fig-2">
+          <div class="fig__head">
+            <span class="fig__label"><b>Figure 2</b> &middot; Overview</span>
+            <button type="button" class="fig__zoom" aria-label="Enlarge Figure 2: overview of ALoDLM"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+          </div>
+          <div class="fig__media">
+            <img src="static/images/overview.svg" width="1290" height="568" decoding="async" loading="lazy" data-zoom data-zoom-width="2580" data-zoom-min="1000"
+                 alt="Diagram comparing standard DLM decoding (fixed full passes) with ALoDLM decoding, where each denoising step runs a token-adaptive loop of Prelude, Recurrent core and Coda with per-token exit gates; confident tokens commit early and are fed back as embeddings.">
+          </div>
+          <figcaption class="fig__caption"><strong>Overview of ALoDLM.</strong> Standard DLMs apply a fixed-depth denoiser at each denoising step. ALoDLM introduces token-adaptive recurrence within each step: confident tokens commit early and provide discrete context, while unresolved tokens retain and refine their latent states through additional recurrent passes. <em>Reading guide:</em> each &ldquo;Adaptive Loop&rdquo; box is one denoising step and each &ldquo;inner iteration&rdquo; is one recurrent pass.</figcaption>
+        </figure>
+
+        <!-- Part 01: inference -->
+        <div class="part" id="inference">
+          <div class="part-head">
+            <span class="part-badge" aria-hidden="true">01</span>
+            <span class="part-eyebrow">ALoDLM inference</span>
+            <h3 class="part-title" data-anchor="inference">Adaptive latent recurrence</h3>
+          </div>
+          <div class="part01">
+            <div class="part01__text">
+              <p class="part-intro">A denoising step starts by encoding the partially masked sequence with the Prelude. The shared Recurrent Core then runs repeatedly; after every recurrent pass, the Coda produces a readout that feeds two heads: an LM head (a token distribution per position) and an exit gate (a halting probability).</p>
+              <ul class="checklist">
+                <li><svg aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg><span><strong>Commit by confidence.</strong> After each pass, unresolved positions whose predictive entropy is at most <var>&tau;</var> are sampled and committed.</span></li>
+                <li><svg aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg><span><strong>Feed back as context.</strong> Committed tokens re-enter the next pass as token embeddings; unresolved positions carry their latent states forward and keep refining them.</span></li>
+                <li><svg aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg><span><strong>Stop adaptively.</strong> The exit gate&rsquo;s per-pass halting probabilities accumulate into a cumulative halting probability per position; the inner loop ends when its mean over unresolved positions reaches the exit threshold <var>q</var>, when no unresolved positions remain, or after <var>K</var>&nbsp;=&nbsp;4 passes, the maximum recurrent depth.</span></li>
+              </ul>
+              <p class="note block-gap">Latent states persist only within a step: committed tokens are written into the sequence, and the next denoising step re-initializes from it.</p>
+            </div>
+
+            <div class="part01__widget">
+              <div id="loop-stepper" class="widget-mount" data-widget="loop-stepper">
+                <div class="widget-fallback">
+                  <strong>Inside one denoising step</strong>
+                  A step-through of recurrent passes, commitments and the exit gate on a real span of an ALoDLM-8B response with its recorded commitment passes. It needs JavaScript.
+                </div>
+              </div>
+            </div>
+
+            <div class="part01__arch card card--pad arch" role="group" aria-labelledby="arch-title">
+              <div class="arch__head">
+                <h4 class="arch__title" id="arch-title">Architecture</h4>
+                <span class="chip chip--brand"><span>maximum recurrent depth <var>K</var>&nbsp;=&nbsp;4</span></span>
+              </div>
+              <div class="arch__model">
+                <p class="arch__name">ALoDLM-8B <span>&middot; from Qwen3-8B, 36 layers</span></p>
+                <div class="arch__bar">
+                  <div class="arch__seg arch__seg--prelude" style="--n:10"><b>Prelude</b><small>[0, 10)</small></div>
+                  <div class="arch__seg arch__seg--core" style="--n:16"><b>Recurrent Core <svg class="arch__loop" aria-hidden="true" focusable="false"><use href="#i-loop"/></svg></b><small>[10, 26) &middot; 16 shared layers</small></div>
+                  <div class="arch__seg arch__seg--coda" style="--n:10"><b>Coda</b><small>[26, 36)</small></div>
+                </div>
+              </div>
+              <div class="arch__model">
+                <p class="arch__name">ALoDLM-1.7B <span>&middot; from Qwen3-1.7B, 28 layers</span></p>
+                <div class="arch__bar">
+                  <div class="arch__seg arch__seg--core" style="--n:1"><b>Recurrent Core <svg class="arch__loop" aria-hidden="true" focusable="false"><use href="#i-loop"/></svg></b><small>[0, 28) &middot; all 28 layers; Prelude = token embedding only, no Coda blocks</small></div>
+                </div>
+              </div>
+              <div class="arch__heads">
+                <div class="arch__seg arch__seg--lm"><b>LM head</b><small>entropy &le; &tau; &rarr; commit</small></div>
+                <div class="arch__seg arch__seg--gate"><b>Exit gate</b><small>mean halt &ge; q &rarr; stop</small></div>
+              </div>
+              <p class="arch__note">The Prelude runs once per denoising step; the Recurrent Core and the Coda readout run at every pass, and the next pass continues from the core&rsquo;s output, with committed positions replaced by their token embeddings. The exit gate reads a stop-gradient copy of the readout.</p>
+            </div>
+          </div>
+
+          <details class="disclosure" id="algorithm-1">
+            <summary>
+              <span class="disclosure__icon" aria-hidden="true"><svg><use href="#i-algo"/></svg></span>
+              <span>Algorithm 1 and the update equations</span>
+              <span class="disclosure__hint">Pseudocode</span>
+              <svg class="disclosure__chev" aria-hidden="true" focusable="false"><use href="#i-chevron-down"/></svg>
+            </summary>
+            <div class="disclosure__body">
+              <div class="algo-layout">
+                <div class="algo-eqs">
+                  <p class="algo-eqs__title">One recurrent pass</p>
+                  <div class="eq">
+                    <div class="eq__label"><b>(1)</b> Core and readout</div>
+                    <div class="eq__math" data-tex data-display><code>\widetilde h^{(s)} = \mathsf{Recurrent\ Core}\bigl(h^{(s-1)}\bigr), \qquad r^{(s)} = \mathsf{Coda}\bigl(\widetilde h^{(s)}\bigr), \qquad s = 1,\ldots,K</code></div>
+                  </div>
+                  <div class="eq">
+                    <div class="eq__label"><b>(2)</b> LM head and per-pass halting probability</div>
+                    <div class="eq__math" data-tex data-display><code>p_i^{(s)} = \operatorname{softmax}\bigl(\mathsf{LMHead}(r_i^{(s)})\bigr), \qquad
+   \lambda_i^{(s)} = \begin{cases} \sigma\bigl(\mathsf{ExitGate}(\operatorname{sg}[r_i^{(s)}])\bigr), &amp; s &lt; K, \\ 1, &amp; s = K. \end{cases}</code></div>
+                  </div>
+                  <div class="eq">
+                    <div class="eq__label"><b>(3)</b> Latent feedback</div>
+                    <div class="eq__math" data-tex data-display><code>h_i^{(s)} = \begin{cases} \operatorname{Emb}(\widehat y_i), &amp; i \in \mathcal{C}^{(s)}, \\ \widetilde h_i^{(s)}, &amp; \text{otherwise} \end{cases}</code></div>
+                  </div>
+                  <div class="eq">
+                    <div class="eq__label">Cumulative halting probability</div>
+                    <div class="eq__math" data-tex data-display><code>a_i^{(s)}=a_i^{(s-1)}+\big(1-a_i^{(s-1)}\big)\lambda_i^{(s)}</code></div>
+                  </div>
+                </div>
+
+                <div class="algo" role="group" aria-labelledby="algo-cap">
+                  <p class="algo__caption" id="algo-cap"><b>Algorithm 1</b> ALoDLM decoding</p>
+                  <p class="algo__input"><span class="kw">Input:</span> masked sequence <var>x</var>, maximum depth <var>K</var>, entropy threshold <var>&tau;</var>, cumulative halt threshold <var>q</var></p>
+                  <ol class="algo__lines">
+                    <li class="algo__line" style="--i:0"><span class="algo__ln">1:</span><span><span class="kw">while</span> <var>x</var> contains [MASK] <span class="kw">do</span></span><span class="algo__cmt">Outer loop</span></li>
+                    <li class="algo__line" style="--i:1"><span class="algo__ln">2:</span><span><var>U</var> &larr; {&thinsp;<var>i</var> : <var>x<sub>i</sub></var> = [MASK]&thinsp;}</span></li>
+                    <li class="algo__line" style="--i:1"><span class="algo__ln">3:</span><span><var>h</var> &larr; <span class="fn">Prelude</span>(<var>x</var>); &ensp;<var>a</var> &larr; 0; &ensp;<var>C</var> &larr; &empty;</span></li>
+                    <li class="algo__line" style="--i:1"><span class="algo__ln">4:</span><span><span class="kw">for</span> <var>s</var> = 1, &hellip;, <var>K</var> <span class="kw">do</span></span><span class="algo__cmt">Inner loop</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">5:</span><span><var>h</var> &larr; <span class="fn">RecurrentCore</span>(<var>h</var>)</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">6:</span><span><var>r</var> &larr; <span class="fn">Coda</span>(<var>h</var>)</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">7:</span><span>compute <var>p<sub>i</sub></var>, <var>&lambda;<sub>i</sub></var> for <var>i</var> &isin; <var>U</var> by Eq. (2)</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">8:</span><span><var>a<sub>i</sub></var> &larr; <var>a<sub>i</sub></var> + (1 &minus; <var>a<sub>i</sub></var>)&middot;<var>&lambda;<sub>i</sub></var>, &ensp;<var>i</var> &isin; <var>U</var></span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">9:</span><span><var>B</var> &larr; {&thinsp;<var>i</var> &isin; <var>U</var> : <span class="fn">Entropy</span>(<var>p<sub>i</sub></var>) &le; <var>&tau;</var>&thinsp;}</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">10:</span><span><var>&ycirc;<sub>i</sub></var> &larr; <span class="fn">Sample</span>(<var>p<sub>i</sub></var>), &ensp;<var>i</var> &isin; <var>B</var></span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">11:</span><span><var>C</var> &larr; <var>C</var> &cup; <var>B</var>; &ensp;<var>U</var> &larr; <var>U</var> \ <var>B</var></span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">12:</span><span><var>h<sub>i</sub></var> &larr; <span class="fn">Emb</span>(<var>&ycirc;<sub>i</sub></var>), &ensp;<var>i</var> &isin; <var>C</var></span><span class="algo__cmt">Committed tokens become context</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">13:</span><span><span class="kw">if</span> <var>U</var> = &empty; <span class="kw">or</span> mean<sub><var>i</var>&isin;<var>U</var></sub> <var>a<sub>i</sub></var> &ge; <var>q</var> <span class="kw">then break</span></span></li>
+                    <li class="algo__line" style="--i:1"><span class="algo__ln">14:</span><span><span class="kw">if</span> <var>C</var> = &empty; <span class="kw">then</span></span><span class="algo__cmt">Ensure progress</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">15:</span><span><var>j</var> &larr; argmin<sub><var>i</var>&isin;<var>U</var></sub> <span class="fn">Entropy</span>(<var>p<sub>i</sub></var>)</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">16:</span><span><var>&ycirc;<sub>j</sub></var> &larr; <span class="fn">Sample</span>(<var>p<sub>j</sub></var>)</span></li>
+                    <li class="algo__line" style="--i:2"><span class="algo__ln">17:</span><span><var>C</var> &larr; {<var>j</var>}</span></li>
+                    <li class="algo__line" style="--i:1"><span class="algo__ln">18:</span><span><var>x<sub>i</sub></var> &larr; <var>&ycirc;<sub>i</sub></var>, &ensp;<var>i</var> &isin; <var>C</var></span></li>
+                    <li class="algo__line" style="--i:0"><span class="algo__ln">19:</span><span><span class="kw">return</span> <var>x</var></span></li>
+                  </ol>
+                  <p class="note block-gap">Line 5 produces the core output <span data-tex><code>\widetilde h^{(s)}</code></span>; line 6 is a readout branch, and the next pass continues from the pre-Coda state. The quality evaluation (Table&nbsp;1) uses greedy token selection in place of <span class="fn">Sample</span>.</p>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Part 02: training -->
+        <div class="part" id="training">
+          <div class="part-head">
+            <span class="part-badge" aria-hidden="true">02</span>
+            <span class="part-eyebrow">ALoDLM training</span>
+            <h3 class="part-title" data-anchor="training">Exit schedules as latent variables</h3>
+          </div>
+          <p class="part-intro training-intro">Training learns a denoiser together with a halting policy. An exit schedule <span data-tex><code>\mathbf{z}\in\{1,\ldots,K\}^{|\mathcal{M}_t|}</code></span> assigns every masked position <var>i</var> an exit depth <span data-tex><code>z_i</code></span>: token <var>i</var> commits after recurrent pass <span data-tex><code>z_i</code></span>. Together with the noisy sequence <span data-tex><code>\mathbf{x}_t</code></span>, a schedule fully determines one denoising step of up to <var>K</var> passes.</p>
+
+          <div class="eq-card block-gap" role="group" aria-label="Training equations">
+            <div class="eq">
+              <div class="eq__label"><b>Eq. 5</b> Conditional NELBO</div>
+              <div class="eq__math" data-tex data-display><code>J(\theta,\phi;\mathbf{x}_t,\mathbf{y}) := \mathbb{E}_{\mathbf{z}\sim q_\phi}\Biggl[\underbrace{-\sum_{i\in\mathcal{M}_t}\log p_{\theta,i}^{(z_i)}\bigl(y_i\mid\mathbf{x}_t;\mathbf{z}\bigr)}_{\mathcal{L}_{\mathrm{traj}}(\mathbf{z})}\Biggr] + D_{\mathrm{KL}}\bigl(q_\phi\,\|\,\pi\bigr) \;\geq\; -\log p_\theta\bigl(\mathbf{y}_{\mathcal{M}_t}\mid\mathbf{x}_t\bigr)</code></div>
+            </div>
+            <div class="eq">
+              <div class="eq__label"><b>Eq. 6</b> Training objective</div>
+              <div class="eq__math" data-tex data-display><code>\mathcal{L}_{\mathrm{train}}(\theta,\phi) := \mathbb{E}_{\mathbf{y}\sim p_{\mathrm{data}},\; t\sim\operatorname{Unif}[0,1],\; \mathbf{x}_t\sim q_t(\cdot\mid\mathbf{y})}\left[\frac{1}{t}\,J(\theta,\phi;\mathbf{x}_t,\mathbf{y})\right]</code></div>
+            </div>
+            <div class="eq">
+              <div class="eq__label"><b>Eq. 7</b> Single-trajectory surrogate, unbiased for Eq. 6 (Prop. 1)</div>
+              <div class="eq__math" data-tex data-display><code>\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z}) = \frac{1}{t}\Biggl\{\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \operatorname{sg}\!\left[\mathcal{L}_{\mathrm{traj}}(\mathbf{z}) + \log\frac{q_\phi(\mathbf{z})}{\pi(\mathbf{z})}\right]\log q_\phi(\mathbf{z})\Biggr\},
+\qquad
+\mathbb{E}_{\mathbf{y},t,\mathbf{x}_t,\mathbf{z}}\!\left[\nabla_{\theta,\phi}\widehat{\mathcal{L}}_{\mathrm{sur}}(\mathbf{z})\right] = \nabla_{\theta,\phi}\mathcal{L}_{\mathrm{train}}(\theta,\phi)</code></div>
+            </div>
+            <p class="eq-legend"><span data-tex><code>\mathbf{x}_t</code></span> corrupted input &middot; <span data-tex><code>\mathbf{y}</code></span> clean sequence &middot; <span data-tex><code>\mathcal{M}_t</code></span> masked positions &middot; <span data-tex><code>q_\phi</code></span> schedule distribution parameterized by the exit gate &middot; <span data-tex><code>\pi</code></span> truncated-geometric prior (<span data-tex><code>c = 0.4</code></span>) &middot; <span data-tex><code>q_t</code></span> forward masking process &middot; <span data-tex><code>\operatorname{sg}</code></span> stop-gradient.</p>
+          </div>
+
+          <div class="explainers">
+            <article class="card explainer">
+              <span class="explainer__tag" aria-hidden="true">a</span>
+              <h4 class="card__title--sm">Why a bound?</h4>
+              <p>Each commitment changes the context of the tokens that are still unresolved, so exit depths are modelled jointly, and summing over all exit schedules would need exponentially many separate rollouts. Instead, the exit gate parameterizes a variational distribution <var>q</var><sub><var>&#x3D5;</var></sub> over schedules, and a truncated-geometric prior <var>&pi;</var> with <var>c</var>&nbsp;=&nbsp;0.4 favours shallow exits.</p>
+            </article>
+            <article class="card explainer">
+              <span class="explainer__tag" aria-hidden="true">b</span>
+              <h4 class="card__title--sm">One rollout, unbiased for the objective</h4>
+              <p>A schedule is sampled pass by pass during a single recurrent rollout. The denoiser is trained by ordinary backpropagation; the exit gate gets a score-function term whose detached, sequence-level cost credits each halting decision for its effect on the whole sequence. By Prop.&nbsp;1 this gives unbiased gradients of the objective above; the practical recipe relaxes the KL term to keep token-wise adaptivity, so the guarantee concerns the original objective.</p>
+            </article>
+            <article class="card explainer">
+              <span class="explainer__tag" aria-hidden="true">c</span>
+              <h4 class="card__title--sm">Lower variance, no extra passes</h4>
+              <p>One rollout already yields a readout at every pass, so each token is also supervised at earlier passes, weighted by its detached exit-depth probabilities; the gate&rsquo;s cost subtracts the first-pass prediction cost as a control variate. Removing intermediate supervision raises conditional gradient variance to 1.76&times;, 1.49&times; and 1.42&times; at training steps 1k, 6.5k and 17k.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Results -->
+    <section id="results" class="section" data-spy="results" aria-labelledby="results-title">
+      <div class="container container--full">
+        <div class="section__head">
+          <h2 id="results-title" data-anchor="results">Results</h2>
+          <p class="section__lead is-long">ALoDLM-1.7B and ALoDLM-8B are trained from Qwen3-1.7B and Qwen3-8B by direct SFT on a 5B-token corpus, without continued pre-training, with maximum recurrent depth <var>K</var>&nbsp;=&nbsp;4. All models are evaluated on eleven benchmarks with the OpenCompass protocol: native chat templates, greedy decoding, a 4,096-token generation limit, and one token per model pass under each model&rsquo;s default decoding rule.</p>
+        </div>
+
+        <div id="results-table" class="widget-mount" data-widget="results">
+          <div class="widget-fallback">
+            <strong>Table 1: main results</strong>
+            Scores on eleven benchmarks at the 1.7B and 8B scales. Average score: ALoDLM-8B 80.3 vs Qwen3-8B 78.5; ALoDLM-1.7B 65.5 vs Qwen3-1.7B 63.8. The interactive table needs JavaScript.
+          </div>
+        </div>
+
+        <div class="subsection" id="efficiency">
+          <div class="subsection__head">
+            <span class="eyebrow">Efficiency</span>
+            <h3 data-anchor="efficiency">Quality&ndash;efficiency trade-off</h3>
+            <p>With parallel decoding on GSM8K, two thresholds set ALoDLM-8B&rsquo;s operating point: the entropy threshold <var>&tau;</var> decides which tokens commit, and the exit threshold <var>q</var> decides how long unresolved tokens keep refining. Single-stream on one NVIDIA B200.</p>
+          </div>
+          <ul class="kpis" aria-label="Key efficiency numbers">
+            <li class="kpi"><span class="kpi__value">+8.5% throughput</span><span class="kpi__label">at a matched 93.25% GSM8K accuracy: <strong>612.4 vs 564.2 tok/s</strong> against WeDLM-8B</span></li>
+            <li class="kpi"><span class="kpi__value">13.6% less compute</span><span class="kpi__label">at the same accuracy: <strong>133.5 vs 154.6 GFLOPs</strong> per generated token against WeDLM-8B</span></li>
+            <li class="kpi"><span class="kpi__value"><var>&tau;</var>: 0.1 &rarr; 0.6</span><span class="kpi__label">at <var>q</var>&nbsp;=&nbsp;0.5: <strong>278.7 &rarr; 508.3 tok/s</strong>, accuracy 93.8% &rarr; 92.3% (89.9% at <var>&tau;</var>&nbsp;=&nbsp;0.9)</span></li>
+            <li class="kpi"><span class="kpi__value"><var>q</var>: 0.1 &rarr; 0.9</span><span class="kpi__label">at <var>&tau;</var>&nbsp;=&nbsp;0.2: accuracy <strong>93.3% &rarr; 93.8%</strong>, 455.3 &rarr; 309.0 tok/s</span></li>
+          </ul>
+          <figure class="fig fig--wide" id="fig-3">
+            <div class="fig__head">
+              <span class="fig__label"><b>Figure 3</b> &middot; Decoding thresholds and frontier</span>
+              <button type="button" class="fig__zoom" aria-label="Enlarge Figure 3: decoding thresholds and quality-efficiency frontier"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+            </div>
+            <div class="fig__media">
+              <img src="static/images/speed_pareto.svg" width="699" height="160" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
+                   alt="Left: effect of entropy threshold τ and exit threshold q on GSM8K accuracy and speed. Right: ALoDLM-8B's accuracy–speed and accuracy–compute frontiers lie above WeDLM-8B's over most of the range.">
+            </div>
+            <figcaption class="fig__caption"><strong>(a) Complementary roles of the entropy and halting gates.</strong> Increasing <em>&tau;</em> relaxes the commitment criterion and accelerates generation, with sharper accuracy losses at high thresholds (left). Increasing <em>q</em> permits deeper latent refinement, also yielding accuracy gains at lower throughput (right). These gates collectively balance parallel token commitment with adaptive refinement of unresolved tokens. <strong>(b) Adaptive recurrence improves the quality&ndash;efficiency frontier.</strong> Across most of the evaluated range, ALoDLM-8B achieves higher accuracy than WeDLM-8B at comparable throughput (left) or compute per generated token (right). Solid lines connect frontier configurations.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== Analysis -->
+    <section id="analysis" class="section section--tint" data-spy="analysis" aria-labelledby="analysis-title">
+      <div class="container container--full">
+        <div class="section__head">
+          <h2 id="analysis-title" data-anchor="analysis">Analysis</h2>
+          <p class="section__lead is-long">What the recurrent depth learns, and how it can be used at test time. Deeper recurrent readouts reach lower training loss, the exit threshold <var>q</var> acts as a test-time scaling knob, and the model learns to prefer more refinement for number tokens without any difficulty labels.</p>
+        </div>
+
+        <figure class="fig fig--wide" id="fig-4">
+          <div class="fig__head">
+            <span class="fig__label"><b>Figure 4</b> &middot; Learning dynamics and allocation</span>
+            <button type="button" class="fig__zoom" aria-label="Enlarge Figure 4: learning dynamics, test-time scaling and token-adaptive recurrence"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+          </div>
+          <div class="fig__media">
+            <img src="static/images/training_allocation.svg" width="685" height="160" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
+                 alt="Training loss by recurrence depth (deeper is lower); accuracy and loops-per-token increase with exit threshold q; numeric tokens have the lowest mean halting probability (0.369, −11.5% vs mean).">
+          </div>
+          <figcaption class="fig__caption"><strong>Left: Learning dynamics.</strong> After the initial training phase, deeper recurrent readouts exhibit lower training loss on their active tokens. <strong>Middle: Test-time scaling with <em>q</em>.</strong> Increasing <em>q</em> raises loops-per-token and the average score across eleven benchmarks. <strong>Right: Token-adaptive recurrence.</strong> Mean first-pass halting probabilities differ across token categories, with numerical tokens showing the lowest mean. These preferences are learned without explicit token-difficulty labels or predefined halting targets.</figcaption>
+        </figure>
+
+        <div id="analysis-charts" class="widget-mount block-gap" data-widget="analysis-charts">
+          <div class="widget-fallback">
+            <strong>Interactive charts</strong>
+            Raising the exit threshold <var>q</var> from 0.1 to 0.4 increases loops per token from 1.60 to 2.34 and the eleven-benchmark average from 77.9 to 79.1. Number tokens have the lowest mean first-pass halting probability (0.369, about 11.5% below the mean of 0.417). The interactive charts need JavaScript.
+          </div>
+        </div>
+
+        <div class="subsection" id="ablations">
+          <div class="subsection__head">
+            <span class="eyebrow">Ablations</span>
+            <h3 data-anchor="ablations">Depth, placement and supervision</h3>
+          </div>
+          <figure class="fig fig--wide" id="fig-5">
+            <div class="fig__head">
+              <span class="fig__label"><b>Figure 5</b> &middot; Ablations</span>
+              <button type="button" class="fig__zoom" aria-label="Enlarge Figure 5: ablations"><svg aria-hidden="true" focusable="false"><use href="#i-expand"/></svg>Enlarge</button>
+            </div>
+            <div class="fig__media">
+              <img src="static/images/ablations.svg" width="699" height="156" decoding="async" loading="lazy" data-zoom data-zoom-width="1900" data-zoom-min="980"
+                   alt="Ablations: maximum recurrent depth K = 4 matches or beats K = 8 and beats K = 2; middle-layer recurrence beats last-layer recurrence; removing intermediate supervision raises gradient variance 1.42–1.76×.">
+            </div>
+            <figcaption class="fig__caption"><strong>Left:</strong> At 8B, <em>K</em> = 4 outperforms <em>K</em> = 8 early in training and achieves comparable performance later, while <em>K</em> = 2 plateaus at a lower score. The inset enlarges steps 10,000&ndash;17,000. <strong>Middle:</strong> Middle-layer recurrence outperforms last-layer recurrence later in training. The full-stack curve is a historical reference evaluated on a different benchmark subset. <strong>Right:</strong> Intermediate supervision reduces conditional gradient variance in ALoDLM-8B. Variance across sampled exit trajectories is normalized to the value with intermediate supervision at each checkpoint. Error bars show paired 95% bootstrap confidence intervals across eight fixed input packs.</figcaption>
+          </figure>
+          <ul class="takeaways">
+            <li class="takeaway"><strong>Maximum recurrent depth <var>K</var>.</strong> <var>K</var>&nbsp;=&nbsp;4 learns faster than <var>K</var>&nbsp;=&nbsp;8 early on and matches it later with half the maximum depth; <var>K</var>&nbsp;=&nbsp;2 plateaus lower.</li>
+            <li class="takeaway"><strong>Loop placement.</strong> Looping the middle layers [10, 26) beats looping the last layers [20, 36) later in training, with the same 16-layer core. The full-stack curve was evaluated on a different benchmark subset.</li>
+            <li class="takeaway"><strong>Intermediate supervision.</strong> Without it, conditional gradient variance rises to 1.76&times;, 1.49&times; and 1.42&times; of the full method at steps 1k, 6.5k and 17k, with no extra recurrent passes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== BibTeX -->
+    <section id="bibtex" class="section" data-spy="bibtex" aria-labelledby="bibtex-title">
+      <div class="container">
+        <div class="section__head">
+          <h2 id="bibtex-title" data-anchor="bibtex">BibTeX</h2>
+          <p class="section__lead">Citation for the anonymous submission. It will be updated after the review period.</p>
+        </div>
+        <div class="code-card">
+          <div class="code-card__bar">
+            <span class="code-card__lang">BibTeX</span>
+            <button type="button" class="copy-btn" data-copy-target="bibtex-code">
+              <svg class="i-copy" aria-hidden="true" focusable="false"><use href="#i-copy"/></svg>
+              <svg class="i-check" aria-hidden="true" focusable="false"><use href="#i-check"/></svg>
+              <span class="copy-btn__label">Copy</span>
+            </button>
+          </div>
+          <pre class="code-card__pre" tabindex="0" aria-label="BibTeX entry"><code id="bibtex-code">@inproceedings{anonymous2026alodlm,
+  title     = {{ALoDLM}: Adaptively Looped Diffusion Language Models},
+  author    = {Anonymous},
+  booktitle = {Submitted to The Fifteenth International Conference on Learning Representations},
+  year      = {2026},
+  note      = {Under review}
+}</code></pre>
+          <p class="visually-hidden" id="copy-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container container--full footer__inner">
+      <p class="footer__brand">
+        <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="g-brand-foot" x1="4" y1="6" x2="28" y2="26" gradientUnits="userSpaceOnUse">
+              <stop offset="0" class="gs-a"/><stop offset="1" class="gs-b"/>
+            </linearGradient>
+          </defs>
+          <path d="M26.34 14.18A10.5 10.5 0 1 1 17.82 5.66" fill="none" stroke="url(#g-brand-foot)" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M23.1 6.6 17 9.9 18.3 2.1z" fill="url(#g-brand-foot)" stroke="url(#g-brand-foot)" stroke-width="1.2" stroke-linejoin="round"/>
+          <rect x="12.6" y="12.6" width="6.8" height="6.8" rx="1.8" fill="url(#g-brand-foot)"/>
+        </svg>
+        <span>Anonymous project page for a paper under double-blind review.</span>
+      </p>
+      <a class="to-top" href="#top">Back to top <svg aria-hidden="true" focusable="false"><use href="#i-arrow-up"/></svg></a>
+    </div>
+  </footer>
+
+  <!-- Lightbox for figures (wired by site.js) -->
+  <dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-title">
+    <div class="lightbox__bar">
+      <p class="lightbox__title" id="lightbox-title">Figure</p>
+      <span class="lightbox__hint" aria-hidden="true">Click the figure to zoom &middot; Esc to close</span>
+      <button type="button" class="btn btn--sm" data-lb-zoom aria-pressed="false">
+        <svg aria-hidden="true" focusable="false"><use href="#i-zoom-in"/></svg>
+        <span data-lb-zoom-label>Zoom in</span>
+      </button>
+      <button type="button" class="btn btn--sm btn--icon" data-lb-close aria-label="Close">
+        <svg aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="lightbox__stage" tabindex="0" role="group" aria-label="Enlarged figure; scroll to pan when zoomed">
+      <img class="lightbox__img" alt="" draggable="false">
+    </div>
+    <div class="lightbox__caption"></div>
+  </dialog>
+
+  <div id="a11y-live" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <script defer src="static/data/depth_traces.js"></script>
+  <script defer src="static/data/results.js"></script>
+  <script defer src="static/js/site.js"></script>
+  <script defer src="static/js/demo-replay.js"></script>
+  <script defer src="static/js/loop-stepper.js"></script>
+  <script defer src="static/js/results.js"></script>
+</body>
+</html>
