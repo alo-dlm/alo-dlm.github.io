@@ -1,0 +1,132 @@
+/* ==========================================================================
+   Palette A: "Amazon Ink"
+   Squid-ink navy / Amazon blue as the brand, Amazon orange as the accent,
+   so the page sits next to the fixed Amazon AGI badge (#ff9900 / #131a22).
+   Loaded LAST: token overrides only, plus a few hard-coded widget colours.
+   ========================================================================== */
+
+:root {
+  /* Brand: ink blue -> orange */
+  --brand: #135c9e;          /* 6.9:1 on white */
+  --brand-hover: #0e3f6d;
+  --brand-soft: #eef4fa;
+  --brand-soft-2: #d9e6f2;
+  --brand-ring: #8eb3d6;
+  --accent: #b94d00;         /* deep Amazon orange, 5.1:1 on white */
+  --brand-grad: linear-gradient(90deg, #232f3e 2%, #135c9e 44%, #1a62a2 60%, #c55400 77%, #b94d00 100%);
+  --focus: #135c9e;
+  --selection: rgba(19, 92, 158, .16);
+  --glow-1: rgba(19, 92, 158, .10);
+  --glow-2: rgba(255, 153, 0, .10);
+
+  --ours: #135c9e; --ours-bg: #eef4fa;
+
+  /* Commitment-pass ramp: ink-blue, light -> dark */
+  --d1: #dfe8f1; --d1-ink: #0f172a;
+  --d2: #adc4dc; --d2-ink: #0f172a;
+  --d3: #6b93bd; --d3-ink: #0f172a;
+  --d4: #1d4f80; --d4-ink: #ffffff;
+
+  /* Terminal panels: squid ink */
+  --term-bg: #0e141b;
+  --term-bar: #161e28;
+  --term-panel: #111820;
+  --term-line: #243040;
+  --term-accent: #8cc0ef;
+  --t1: #1a2634; --t1-ink: #e2e8f0;
+  --t2: #22405f; --t2-ink: #e2e8f0;
+  --t3: #2a5e90; --t3-ink: #f1f5f9;
+  --t4: #8cbbe6; --t4-ink: #0b1220;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10161d;
+    --bg-subtle: #131a22;
+    --bg-muted: #18212b;
+    --surface: #161e28;
+    --surface-2: #121920;
+    --surface-3: #1c2632;
+    --border: #232f3e;
+    --border-strong: #354558;
+    --nav-bg: rgba(16, 22, 29, .84);
+    --text-on-brand: #10161d;
+    --brand: #8cc0ef;
+    --brand-hover: #b9d9f6;
+    --brand-soft: rgba(20, 110, 180, .16);
+    --brand-soft-2: rgba(20, 110, 180, .28);
+    --brand-ring: #3d84c2;
+    --accent: #ffa63d;
+    --brand-grad: linear-gradient(90deg, #b6d7f5 2%, #8cc0ef 58%, #ffa63d 76%, #ffa63d 100%);
+    --focus: #8cc0ef;
+    --selection: rgba(140, 192, 239, .28);
+    --glow-1: rgba(20, 110, 180, .18);
+    --glow-2: rgba(255, 153, 0, .09);
+    --ours: #8cc0ef; --ours-bg: rgba(20, 110, 180, .14);
+    --d1: #1a2634; --d1-ink: #e2e8f0;
+    --d2: #22405f; --d2-ink: #e2e8f0;
+    --d3: #2a5e90; --d3-ink: #f1f5f9;
+    --d4: #8cbbe6; --d4-ink: #0b1220;
+    --mask-bg: #19222d;
+    --tip-bg: #232f3e;
+    --tip-edge: #354558;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #10161d;
+  --bg-subtle: #131a22;
+  --bg-muted: #18212b;
+  --surface: #161e28;
+  --surface-2: #121920;
+  --surface-3: #1c2632;
+  --border: #232f3e;
+  --border-strong: #354558;
+  --nav-bg: rgba(16, 22, 29, .84);
+  --text-on-brand: #10161d;
+  --brand: #8cc0ef;
+  --brand-hover: #b9d9f6;
+  --brand-soft: rgba(20, 110, 180, .16);
+  --brand-soft-2: rgba(20, 110, 180, .28);
+  --brand-ring: #3d84c2;
+  --accent: #ffa63d;
+  --brand-grad: linear-gradient(90deg, #b6d7f5 2%, #8cc0ef 58%, #ffa63d 76%, #ffa63d 100%);
+  --focus: #8cc0ef;
+  --selection: rgba(140, 192, 239, .28);
+  --glow-1: rgba(20, 110, 180, .18);
+  --glow-2: rgba(255, 153, 0, .09);
+  --ours: #8cc0ef; --ours-bg: rgba(20, 110, 180, .14);
+  --d1: #1a2634; --d1-ink: #e2e8f0;
+  --d2: #22405f; --d2-ink: #e2e8f0;
+  --d3: #2a5e90; --d3-ink: #f1f5f9;
+  --d4: #8cbbe6; --d4-ink: #0b1220;
+  --mask-bg: #19222d;
+  --tip-bg: #232f3e;
+  --tip-edge: #354558;
+}
+
+/* "L-oo-ped": blend happens on the Mobius ribbon only; "ped" stays clean orange */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .loopword__ped { background: linear-gradient(90deg, color-mix(in oklab, var(--brand) 12%, var(--accent)) 0%, var(--accent) 45%); -webkit-background-clip: text; background-clip: text; }
+}
+
+/* Demo replay (always-dark window): hard-coded blues -> ink blue + orange */
+.dr-win { --dr-ours: #8cc0ef; --dr-ctl-edge: #2a3646; --dr-ctl-edge-hover: #3d4c60; }
+.dr-btn--primary { border-color: #146eb4; background: #146eb4; }
+.dr-btn--primary:hover { border-color: #0f5a96; background: #0f5a96; }
+.dr-switch[aria-checked="true"] .dr-switch__track { background: #146eb4; }
+.dr--realtime .dr-speed { border-color: rgba(140, 192, 239, .45); }
+.dr-row--alo .dr-fill { background: linear-gradient(90deg, #5fa6e4, #ffad42); }
+.dr-pane--alo { background: radial-gradient(110% 60% at 100% 0%, rgba(20, 110, 180, .10), transparent 62%); }
+.dr-win ::selection { background: rgba(140, 192, 239, .32); }
+@keyframes dr-ping-alo {
+  0% { box-shadow: 0 0 0 0 rgba(140, 192, 239, .6); }
+  100% { box-shadow: 0 0 0 8px rgba(140, 192, 239, 0); }
+}
+
+/* Publication buttons: squid ink instead of neutral grey / slate */
+.pub-btn { --pub-bg: #232f3e; --pub-bg-hover: #131a22; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pub-btn { --pub-bg: #232f3e; --pub-bg-hover: #2c3b4e; --pub-edge: #3a4b60; }
+}
+:root[data-theme="dark"] .pub-btn { --pub-bg: #232f3e; --pub-bg-hover: #2c3b4e; --pub-edge: #3a4b60; }
