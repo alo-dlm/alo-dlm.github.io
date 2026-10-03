@@ -83,10 +83,11 @@ Everything else (tables, figures, numbers) is reported as in the paper.
 ## Before going public
 
 - [x] Author list, affiliations and equal-contribution note in the header; authors in the BibTeX entry.
-- [ ] Turn the Paper / Code / ALoDLM-1.7B / ALoDLM-8B buttons into real links. They are
-      `aria-disabled` buttons with a "Coming soon" tooltip now; make each one
-      `<a class="pub-btn" href="...">` (same icon and label) and drop `aria-disabled`, `aria-label`
-      and `data-tip`.
+- [x] Code (https://github.com/amazon-science/ALoDLM) and ALoDLM-8B (https://huggingface.co/amazon/ALoDLM-8B)
+      are linked. Both returned 404/401 on 2026-10-02 (not public yet); make them public before launch.
+- [ ] Link the Paper and ALoDLM-1.7B buttons: they are still `aria-disabled` buttons with a "Coming soon"
+      tooltip; make each one `<a class="pub-btn" href="..." target="_blank" rel="noopener noreferrer">`
+      (same icon and label) and drop `aria-disabled`, `aria-label` and `data-tip`.
 - [ ] Update the BibTeX venue, year and URL (and the sentence above it) once the decision is out.
 - [ ] Remove `<meta name="robots" content="noindex, nofollow">` from `index.html`.
 - [x] Footer line no longer says the page is anonymous.
