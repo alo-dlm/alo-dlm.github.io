@@ -183,11 +183,7 @@
 
     /* ------------------------------------------------------------ DOM */
     var uid = 'dr' + Math.random().toString(36).slice(2, 7);
-    var capId = uid + '-cap';
 
-    function v(x) { return h('var', null, x); }
-    function figLink() { return h('a', { href: '#fig-1-right' }, 'Fig.' + NNBSP + '1, right'); }
-    function eq(sym, val) { return [v(sym), NBSP + '=' + NBSP + val]; }
 
     function btn(cls, kind, label, aria) {
       return h('button', { type: 'button', 'class': 'dr-btn ' + cls, 'aria-label': aria || null },
@@ -312,40 +308,12 @@
 
     var panes = h('div', { 'class': 'dr-panes' }, paneAr.el, paneAlo.el);
 
-    var win = h('div', { 'class': 'dr-win term', role: 'group', 'aria-label': 'Decoding replay (illustrative)', 'aria-describedby': capId },
+    var win = h('div', { 'class': 'dr-win term', role: 'group', 'aria-label': 'Decoding replay (illustrative)' },
       bar, race, switcher, panes);
-
-    var slowTxt = h('span', null);
-    var caption = h('p', { 'class': 'dr-caption', id: capId },
-      h('strong', null, 'Illustrative replay, not a live model.'),
-      ' Both panes replay the same ALoDLM-8B response to a GSM8K test question, so only the pacing differs. ' +
-      'Pacing is scaled from measured single-stream GSM8K throughput on one B200 (', figLink(),
-      ': about ' + Math.round(R_AR) + ' vs ' + Math.round(R_ALO) + ' tokens/s; the ALoDLM rate comes from a faster decoding setting than the recorded passes) and ', slowTxt,
-      '. Token colours are the recorded commitment passes (', eq('K', K), '); the grouping of tokens into denoising steps (' +
-      G + ' consecutive tokens each) is illustrative.');
-
-    var how = h('details', { 'class': 'dr-how' },
-      h('summary', null, 'How the replay is computed', A.icon('chevron-down', 'dr-how__chev')),
-      h('ul', { 'class': 'dr-how__list' },
-        h('li', null, 'Simulated latency is the response length ', v('N'), ' divided by measured throughput: ',
-          h('span', { 'class': 'nowrap' }, v('N'), NBSP + '/' + NBSP + R_AR.toFixed(1) + ' tok/s'), ' for vLLM-served Qwen3-8B and ',
-          h('span', { 'class': 'nowrap' }, v('N'), NBSP + '/' + NBSP + R_ALO.toFixed(1) + ' tok/s'),
-          ' for ALoDLM-8B on an optimized inference engine (', figLink(), ': GSM8K, single stream, one NVIDIA B200).'),
-        h('li', null, 'ALoDLM tokens are grouped into illustrative denoising steps of ' + G + ' consecutive tokens. ' +
-          'A step runs as many recurrent passes as its latest-committing token needs (at most the maximum recurrent depth ', eq('K', K),
-          '), every pass takes the same simulated time, and each token appears at the end of its recorded commitment pass. ' +
-          'Positions not yet committed are drawn as placeholders.'),
-        h('li', null, 'The passes were recorded with ', eq('K', K), ', exit threshold ', eq('q', meta.q || 0.5), ', entropy threshold ',
-          eq('\u03c4', meta.tau || 0.4), ' and a ' + (meta.window || 16) +
-          '-token window (the traces behind the paper\u2019s case-study figure). They come from a different ALoDLM-8B checkpoint ' +
-          'and a slower decoding setting than the operating point that sets the pacing (', figLink(), '): with ', eq('q', '0.5'),
-          ', the paper measures 278.7 to 508.3 tok/s for ', v('\u03c4'), ' from 0.1 to 0.6.'),
-        h('li', null, 'The Qwen3-8B pane types the same response one token at a time; Qwen3-8B\u2019s own output is not shown. ' +
-          'Chat-template and end-of-sequence tokens are hidden.')));
 
     var live = h('p', { 'class': 'visually-hidden', 'aria-live': 'polite', 'aria-atomic': 'true' });
 
-    var wrap = h('div', { 'class': 'dr', 'data-state': 'idle', 'data-pane': 'alo' }, win, caption, how, live);
+    var wrap = h('div', { 'class': 'dr', 'data-state': 'idle', 'data-pane': 'alo' }, win, live);
     root.appendChild(wrap);
 
     /* -------------------------------------------------- example + layout */
@@ -652,7 +620,6 @@
       switches.forEach(function (s) { s.setAttribute('aria-checked', on ? 'true' : 'false'); });
       wrap.classList.toggle('dr--realtime', st.realtime);
       speedChip.textContent = on ? 'Real time' : 'Slowed ' + SLOWMO + TIMES;
-      slowTxt.textContent = on ? 'played at that speed (Real time is on)' : 'slowed ' + SLOWMO + TIMES + ' for readability';
     }
     switches.forEach(function (s) {
       s.addEventListener('click', function () { setRealtime(!st.realtime); });

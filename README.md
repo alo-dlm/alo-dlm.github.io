@@ -69,7 +69,8 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
   measured single-stream GSM8K throughput (229.3 vs 612.4 tok/s, Fig. 1 right) and slowed for
   readability. The 612.4 tok/s operating point is faster than the setting the traces were recorded
   with (q = 0.5, τ = 0.4; the paper measures 278.7–508.3 tok/s at q = 0.5 for τ from 0.1 to 0.6), and
-  it is a different checkpoint; the page says so. Token colours are recorded commitment passes; the
+  it is a different checkpoint. The page no longer carries an explanatory caption; the replay
+  window is titled "illustrative replay" and its bars are labelled "simulated latency" / "Slowed 6×". Token colours are recorded commitment passes; the
   grouping of tokens into denoising steps is illustrative.
 - **Method step-through:** a real span with its recorded commitment passes; placing these tokens in a
   single denoising step is illustrative. The traces record only commitment passes, so the halting
