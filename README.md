@@ -1,24 +1,11 @@
 # ALoDLM project page
 
-Private project page for **ALoDLM: Adaptively Looped Diffusion Language Models**
-(under review as a conference paper at ICLR 2027).
+Project page for **ALoDLM: Adaptively Looped Diffusion Language Models**
+(under review as a conference paper at ICLR 2027), served at <https://alo-dlm.github.io>.
 Plain HTML, CSS and JavaScript: no framework, no build step, no package manager.
 
-The page now shows the author list (header and BibTeX), so it must stay private while the paper is
-under double-blind review.
-
-## While under review
-
-Keep the repository private, and its metadata anonymous, until the paper is de-anonymized:
-
-- In every clone, set an anonymous identity before committing (local git config is not pushed, so a
-  fresh clone would otherwise commit under your own name and email):
-  `git config user.name Anonymous && git config user.email anonymous@anonymous.invalid`
-- Commit with `TZ=UTC` (for example `TZ=UTC git commit ...`): commit dates store the local UTC offset,
-  which hints at a location.
-- Do not make the repository public, add outside collaborators or enable GitHub Pages. GitHub also shows
-  which account pushed each update (repository Activity), so anonymous commit metadata alone is not
-  enough once others can see the repository.
+GitHub Pages serves the `main` branch from the repository root, so every push to `main` updates the
+site.
 
 ## Preview locally
 
@@ -80,27 +67,3 @@ replaces the short fallback text inside its mount point; if a widget fails, the 
   heights and pass counts are illustrative, not measured (labelled on the page).
 
 Everything else (tables, figures, numbers) is reported as in the paper.
-
-## Before going public
-
-- [x] Author list, affiliations and equal-contribution note in the header; authors in the BibTeX entry.
-- [x] Code (https://github.com/amazon-science/ALoDLM) and ALoDLM-8B (https://huggingface.co/amazon/ALoDLM-8B)
-      are linked. Both returned 404/401 on 2026-10-02 (not public yet); make them public before launch.
-- [ ] Link the Paper and ALoDLM-1.7B buttons: they are still `aria-disabled` buttons with a "Coming soon"
-      tooltip; make each one `<a class="pub-btn" href="..." target="_blank" rel="noopener noreferrer">`
-      (same icon and label) and drop `aria-disabled`, `aria-label` and `data-tip`.
-- [ ] Update the BibTeX venue, year and URL (and the sentence above it) once the decision is out.
-- [ ] Remove `<meta name="robots" content="noindex, nofollow">` from `index.html`.
-- [x] Footer line no longer says the page is anonymous.
-- [ ] Optionally add Open Graph / Twitter meta tags (e.g. `static/images/teaser_throughput.png`).
-- [ ] Re-check figures and data for anything that should stay private.
-- [ ] Figure 1 (right) prints an inference-engine label under ALoDLM-8B, copied from the paper's figure,
-      while the paper's text describes ALoDLM's engine differently. Confirm the label, or re-export the
-      figure without it (`static/images/teaser_throughput.svg` and `.png`).
-- [ ] Check the commit history for anything identifying (identities, UTC offsets in dates) before it
-      becomes visible; see "While under review".
-- [ ] Make the repository public and enable GitHub Pages: Settings → Pages → Deploy from a branch →
-      `main` / `(root)`. The site will be served at <https://alo-dlm.github.io>.
-
-Do not enable GitHub Pages before de-anonymizing: Pages sites are public even when the repository is
-private.
