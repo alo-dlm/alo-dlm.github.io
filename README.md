@@ -1,7 +1,7 @@
 # ALoDLM project page
 
-Project page for **ALoDLM: Adaptively Looped Diffusion Language Models**
-(under review as a conference paper at ICLR 2027), served at <https://alo-dlm.github.io>.
+Project page for **ALoDLM: Adaptively Looped Diffusion Language Models**, served at
+<https://alo-dlm.github.io>.
 Plain HTML, CSS and JavaScript: no framework, no build step, no package manager.
 
 GitHub Pages serves the `main` branch from the repository root, so every push to `main` updates the
